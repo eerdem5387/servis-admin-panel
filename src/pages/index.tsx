@@ -49,7 +49,7 @@ const Dashboard = () => {
           <div className="px-4 py-6 sm:px-0">
             <div className="mb-4">
               <h2 className="text-xl font-semibold mb-2">Mevcut Servisler</h2>
-              <ul>
+              <ul className="flex flex-col gap-3">
                 {services.map((service) => (
                   <li
                     key={service.id}

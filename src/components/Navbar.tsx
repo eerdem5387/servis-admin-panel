@@ -17,22 +17,22 @@ const Navbar = () => {
             </div>
             <div className="hidden sm:block sm:ml-6">
               <div className="flex space-x-4">
-                <Link href="/dashboard">
+                <Link href="#">
                   <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                     Dashboard
                   </div>
                 </Link>
-                <Link href="">
+                <Link href="#">
                   <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                     Servisler
                   </div>
                 </Link>
-                <Link href="">
+                <Link href="#">
                   <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                     Öğrenciler
                   </div>
                 </Link>
-                <Link href="">
+                <Link href="#">
                   <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                     Veliler
                   </div>
