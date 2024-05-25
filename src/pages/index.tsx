@@ -2,12 +2,39 @@ import React, { useState } from "react";
 
 const Dashboard = () => {
   const [services, setServices] = useState([
-    { id: 1, name: "Servis 1" },
-    { id: 2, name: "Servis 2" },
-    { id: 3, name: "Servis 3" },
+    {
+      id: 1,
+      name: "Servis 1",
+      driverName: "Şoför 1",
+      driverPhone: "1234567890",
+      carPlate: "34 ABC 123",
+      username: "user1",
+      password: "pass1",
+    },
+    {
+      id: 2,
+      name: "Servis 2",
+      driverName: "Şoför 2",
+      driverPhone: "0987654321",
+      carPlate: "34 XYZ 987",
+      username: "user2",
+      password: "pass2",
+    },
+    {
+      id: 3,
+      name: "Servis 3",
+      driverName: "Şoför 3",
+      driverPhone: "5555555555",
+      carPlate: "34 DEF 456",
+      username: "user3",
+      password: "pass3",
+    },
   ]);
 
   const [showAddServiceModal, setShowAddServiceModal] = useState(false);
+  const [showEditServiceModal, setShowEditServiceModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+
   const [driverName, setDriverName] = useState("");
   const [driverPhone, setDriverPhone] = useState("");
   const [carPlate, setCarPlate] = useState("");
@@ -17,7 +44,12 @@ const Dashboard = () => {
   const addNewService = () => {
     const newService = {
       id: services.length + 1,
-      name: driverName + " - " + carPlate, // Servis adı olarak şoför adı ve araç plakası birleştirildi
+      name: driverName + " - " + carPlate,
+      driverName,
+      driverPhone,
+      carPlate,
+      username,
+      password,
     };
     setServices([...services, newService]);
     setShowAddServiceModal(false);
@@ -28,8 +60,32 @@ const Dashboard = () => {
     setPassword("");
   };
 
-  const editService = (id) => {
-    console.log("Servis düzenleme işlevi", id);
+  const editService = (service) => {
+    setSelectedService(service);
+    setDriverName(service.driverName);
+    setDriverPhone(service.driverPhone);
+    setCarPlate(service.carPlate);
+    setUsername(service.username);
+    setPassword(service.password);
+    setShowEditServiceModal(true);
+  };
+
+  const updateService = () => {
+    const updatedServices = services.map((service) =>
+      service.id === selectedService.id
+        ? {
+            ...service,
+            driverName,
+            driverPhone,
+            carPlate,
+            username,
+            password,
+            name: driverName + " - " + carPlate,
+          }
+        : service
+    );
+    setServices(updatedServices);
+    setShowEditServiceModal(false);
   };
 
   const deleteService = (id) => {
@@ -49,7 +105,7 @@ const Dashboard = () => {
           <div className="px-4 py-6 sm:px-0">
             <div className="mb-4">
               <h2 className="text-xl font-semibold mb-2">Mevcut Servisler</h2>
-              <ul className="flex flex-col gap-3">
+              <ul>
                 {services.map((service) => (
                   <li
                     key={service.id}
@@ -59,7 +115,7 @@ const Dashboard = () => {
                     <div>
                       <button
                         className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 mr-2 rounded"
-                        onClick={() => editService(service.id)}
+                        onClick={() => editService(service)}
                       >
                         Düzenle
                       </button>
@@ -83,8 +139,66 @@ const Dashboard = () => {
           </div>
         </div>
       </main>
-      {/* Yeni servis ekleme pop-up ekranı */}
       {showAddServiceModal && (
+        <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
+          <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+          <div className="relative bg-white w-1/2 p-8 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Yeni Servis Ekle</h3>
+            <div className="flex flex-col gap-4">
+              <input
+                type="text"
+                value={driverName}
+                onChange={(e) => setDriverName(e.target.value)}
+                placeholder="Şoför Adı Soyadı"
+                className="border rounded py-2 px-3 focus:outline-none"
+              />
+              <input
+                type="text"
+                value={driverPhone}
+                onChange={(e) => setDriverPhone(e.target.value)}
+                placeholder="Şoför Telefon Numarası"
+                className="border rounded py-2 px-3 focus:outline-none"
+              />
+              <input
+                type="text"
+                value={carPlate}
+                onChange={(e) => setCarPlate(e.target.value)}
+                placeholder="Araç Plakası"
+                className="border rounded py-2 px-3 focus:outline-none"
+              />
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Kullanıcı Adı"
+                className="border rounded py-2 px-3 focus:outline-none"
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Şifre"
+                className="border rounded py-2 px-3 focus:outline-none"
+              />
+              <div className="flex justify-end">
+                <button
+                  onClick={addNewService}
+                  className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+                >
+                  Ekle
+                </button>
+                <button
+                  onClick={() => setShowAddServiceModal(false)}
+                  className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
+                >
+                  İptal
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showEditServiceModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div
@@ -104,7 +218,7 @@ const Dashboard = () => {
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                     <h3 className="text-lg leading-6 font-medium text-gray-900">
-                      Yeni Servis Ekle
+                      Servis Düzenle
                     </h3>
                     <div className="flex flex-col mt-2 gap-3">
                       <input
@@ -148,13 +262,13 @@ const Dashboard = () => {
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                 <button
-                  onClick={addNewService}
+                  onClick={updateService}
                   className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
                 >
-                  Ekle
+                  Güncelle
                 </button>
                 <button
-                  onClick={() => setShowAddServiceModal(false)}
+                  onClick={() => setShowEditServiceModal(false)}
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 >
                   İptal
