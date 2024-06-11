@@ -12,6 +12,7 @@ const AuthProvider = ({ children }) => {
     isAuth: false,
     refreshToken: undefined,
     accessToken: undefined,
+    roles: [],
   });
 
   const register = async (userData, successCb) => {};
@@ -24,6 +25,7 @@ const AuthProvider = ({ children }) => {
           isAuth: true,
           accessToken: res.data.accessToken,
           refreshToken: res.data.refreshToken,
+          roles: res.data.roles,
         });
         localStorage.setItem("access-token", res.data.accessToken);
         localStorage.setItem("refresh-token", res.data.refreshToken);
@@ -61,7 +63,26 @@ const AuthProvider = ({ children }) => {
       });
   };
 
-  const checkAuth = useCallback(async () => {}, [authData, loading]);
+  const checkAuth = () => {
+    httpClient
+      .get(`/auth/authorization`)
+      .then((res) => {
+        setAuthData({
+          ...authData,
+          isAuth: true,
+          roles: res.data.roles,
+        });
+      })
+      .catch((err) => {
+        setAuthData({
+          isAuth: false,
+          refreshToken: undefined,
+          accessToken: undefined,
+        });
+        localStorage.clear();
+        router.replace({ pathname: "/login" });
+      });
+  };
 
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
@@ -72,6 +93,7 @@ const AuthProvider = ({ children }) => {
         refreshToken,
         accessToken,
       });
+      checkAuth();
     } else {
       setAuthData({
         isAuth: false,

@@ -127,6 +127,12 @@ const Dashboard = () => {
         </div>
       </header>
       <main>
+        <h2>Kullanıcı Rolleri</h2>
+        <div className="w-full flex flex-col gap-4 min-h-10">
+          {(auth.authData?.roles ?? []).map((role, index) => (
+            <p key={index}>{role}</p>
+          ))}
+        </div>
         <h2>Okullar</h2>
         <div className="w-full flex flex-col gap-4 min-h-10">
           {(schools?.data ?? []).map((school, index) => (
