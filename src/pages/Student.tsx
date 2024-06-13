@@ -1,6 +1,12 @@
-import React, { useState } from "react";
+import { useAuth } from "@/hoc/AuthContext";
+import httpClient from "@/httpClient";
+import React, { useEffect, useState } from "react";
 
 const Dashboard = () => {
+  const auth = useAuth();
+
+  const [schools, setSchools] = useState({ data: [] });
+
   const [services, setServices] = useState([
     {
       id: 1,
@@ -39,6 +45,7 @@ const Dashboard = () => {
   const [driverPhone, setDriverPhone] = useState("");
   const [carPlate, setCarPlate] = useState("");
   const [username, setUsername] = useState("");
+
   const [password, setPassword] = useState("");
 
   const addNewService = () => {
@@ -93,6 +100,25 @@ const Dashboard = () => {
     setServices(updatedServices);
   };
 
+  const fetchSchools = () => {
+    httpClient
+      .get("/school")
+      .then((res) => {
+        setSchools(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status === 401) {
+          auth.refreshToken();
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (auth.authData.isAuth) {
+      fetchSchools();
+    }
+  }, [auth]);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="bg-white shadow">
@@ -101,6 +127,18 @@ const Dashboard = () => {
         </div>
       </header>
       <main>
+        <h2>Kullanıcı Rolleri</h2>
+        <div className="w-full flex flex-col gap-4 min-h-10">
+          {(auth.authData?.roles ?? []).map((role, index) => (
+            <p key={index}>{role}</p>
+          ))}
+        </div>
+        <h2>Okullar</h2>
+        <div className="w-full flex flex-col gap-4 min-h-10">
+          {(schools?.data ?? []).map((school, index) => (
+            <p key={index}>{school.name}</p>
+          ))}
+        </div>
         <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           <div className="px-4 py-6 sm:px-0">
             <div className="mb-4">
