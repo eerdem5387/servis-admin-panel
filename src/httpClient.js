@@ -2,7 +2,7 @@ import axios from "axios";
 import getConfig from "next/config";
 
 const httpClient = axios.create({
-  baseURL: "http://localhost:7272",
+  baseURL: "https://rest-j2kjfrifbq-ez.a.run.app/",
 });
 
 httpClient.interceptors.request.use(function (config) {
