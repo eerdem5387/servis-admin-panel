@@ -19,6 +19,7 @@ const Routes = () => {
     httpClient
       .get("/parent")
       .then((res) => {
+        console.log(res.data);
         setParents(res.data);
       })
       .catch((err) => {
@@ -35,17 +36,9 @@ const Routes = () => {
     }
   }, [auth]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: any) => {
     e.preventDefault();
     createParent();
-    setFirstName("");
-    setLastName("");
-    setEmail("");
-    setPhone("");
-    setPassword("");
-    setImage("");
-    setAdress("");
-    setShowAddParentModal(false);
   };
 
   const createParent = () => {
@@ -55,38 +48,22 @@ const Routes = () => {
       email: email,
       phone: phone,
       password: password,
-      image: image,
+      // image: image,
     };
 
-    console.log("Sending data:", parentData);
-
     httpClient
-      .post("/parent", JSON.stringify(parentData), {
+      .post("/parent", parentData, {
         headers: {
           "Content-Type": "application/json",
         },
       })
       .then((res) => {
-        console.log("Veli başarıyla oluşturuldu:", res.data);
-        setParents((prevParents) => ({
-          data: [...prevParents.data, res.data],
-        }));
+        setShowAddParentModal(false);
       })
       .catch((err) => {
-        if (err.response.status === 401) {
-          auth.refreshToken();
-          console.log(err);
-        } else {
-          console.log("Error:", err.response);
-        }
+        console.log(err);
       });
   };
-
-  useEffect(() => {
-    if (auth.authData.isAuth) {
-      createParent();
-    }
-  }, [auth]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
@@ -123,7 +100,7 @@ const Routes = () => {
                 key={index}
                 className="bg-gray-200 p-4 rounded flex justify-between items-center"
               >
-                <span>{parent.name}</span>
+                <span>{parent?.user?.firstName}</span>
                 <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                   Düzenle
                 </button>
