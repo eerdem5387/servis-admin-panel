@@ -15,7 +15,7 @@ const AuthProvider = ({ children }) => {
     roles: [],
   });
 
-  const register = async (userData, successCb) => {};
+  const register = async (userData, successCb) => { };
 
   const login = async (email, password, cb) => {
     httpClient
@@ -36,9 +36,9 @@ const AuthProvider = ({ children }) => {
       });
   };
 
-  const logout = async (email, password) => {};
+  const logout = async (email, password) => { };
 
-  const verifyAccount = useCallback(async (token) => {}, []);
+  const verifyAccount = useCallback(async (token) => { }, []);
 
   const refreshToken = () => {
     httpClient

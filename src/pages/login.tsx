@@ -1,7 +1,7 @@
 import { useAuth } from "@/hoc/AuthContext";
 import React, { useState } from "react";
 
-const Dashboard = () => {
+const Login = () => {
   const auth = useAuth();
 
   const [email, setEmail] = useState("");
@@ -15,8 +15,18 @@ const Dashboard = () => {
         </div>
       </header>
       <div className="mt-[100px] w-full flex flex-col gap-4 justify-center items-center">
-        <input placeholder="E-mail" type="text" onChange={(e) => setEmail(e.target.value)} className="border shadow-md rounded-lg p-2" />
-        <input placeholder="Şifre" type="password" onChange={(e) => setPassword(e.target.value)} className="border shadow-md rounded-lg p-2" />
+        <input
+          placeholder="E-mail"
+          type="text"
+          onChange={(e) => setEmail(e.target.value)}
+          className="border shadow-md rounded-lg p-2"
+        />
+        <input
+          placeholder="Şifre"
+          type="password"
+          onChange={(e) => setPassword(e.target.value)}
+          className="border shadow-md rounded-lg p-2"
+        />
         <button
           type="button"
           onClick={() => {
@@ -31,4 +41,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Login;

@@ -10,36 +10,42 @@ const Navbar = () => {
             {/* Mobil menü butonu */}
           </div>
           <div className="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex-shrink-0">
+            <div className="flex items-center">
               <h1 className="text-white font-bold">
                 Servis Mobil App Admin Panel
               </h1>
             </div>
             <div className="hidden sm:block sm:ml-6">
               <div className="flex space-x-4">
-                <Link href="#">
+                <Link href="/dashboard">
                   <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                     Dashboard
                   </div>
                 </Link>
-                <Link href="#">
+                <Link href="/Schools">
                   <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                    Servisler
+                    Okullar
                   </div>
                 </Link>
-                <Link href="#">
+                <Link href="/Routes">
                   <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                    Öğrenciler
+                    Rotalar
                   </div>
                 </Link>
-                <Link href="#">
+                <Link href="/Parents">
                   <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
                     Veliler
+                  </div>
+                </Link>
+                <Link href="#">
+                  <div className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Ayarlar
                   </div>
                 </Link>
               </div>
             </div>
           </div>
+          <div></div>
         </div>
       </div>
     </nav>
