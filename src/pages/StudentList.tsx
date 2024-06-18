@@ -101,7 +101,9 @@ const StudentsList = () => {
               </p>
             ))}
           </div> */}
-        <h2 className="text-2xl font-semibold my-4">Veliler</h2>
+        <h2 className="text-2xl font-semibold my-4">
+          Öğrenciler (Şuanlık Velilerin Datasını Basıyoruz)
+        </h2>
         <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
           {(parents?.data ?? []).map((parent, index) => (
             <div
