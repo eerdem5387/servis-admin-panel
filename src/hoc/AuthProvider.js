@@ -63,27 +63,6 @@ const AuthProvider = ({ children }) => {
       });
   };
 
-  const checkAuth = () => {
-    httpClient
-      .get(`/auth/authorization`)
-      .then((res) => {
-        setAuthData({
-          ...authData,
-          isAuth: true,
-          roles: res.data.roles,
-        });
-      })
-      .catch((err) => {
-        setAuthData({
-          isAuth: false,
-          refreshToken: undefined,
-          accessToken: undefined,
-        });
-        localStorage.clear();
-        router.replace({ pathname: "/login" });
-      });
-  };
-
   useEffect(() => {
     const accessToken = localStorage.getItem("access-token");
     const refreshToken = localStorage.getItem("refresh-token");
@@ -93,7 +72,6 @@ const AuthProvider = ({ children }) => {
         refreshToken,
         accessToken,
       });
-      checkAuth();
     } else {
       setAuthData({
         isAuth: false,
