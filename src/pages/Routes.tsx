@@ -59,7 +59,7 @@ const Routes = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <header className="bg-white shadow w-full flex items-center p-6">
-        <h1 className="text-3xl font-bold text-red-500 mr-6">Rotalar</h1>
+        <h1 className="text-3xl font-bold text-gray-500 mr-6">Rotalar</h1>
         <button
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           onClick={() => setShowAddRouteModal(true)}
@@ -68,7 +68,7 @@ const Routes = () => {
         </button>
       </header>
       <div className="flex w-full">
-        <div className="flex flex-col w-1/5 bg-gray-800 p-4">
+        <div className="flex flex-col  w-1/6 bg-[#0758C5] h-screen p-4">
           <nav>
             <ul className="space-y-4">
               <li className="text-white">Rotanıza Araç Ekleyin</li>

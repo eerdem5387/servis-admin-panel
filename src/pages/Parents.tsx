@@ -1,20 +1,40 @@
 import { useAuth } from "@/hoc/AuthContext";
 import httpClient from "@/httpClient";
 import React, { useEffect, useState } from "react";
+import ParentsList from "./ParentsList";
+import StudentList from "./StudentList";
 
 const Parent = () => {
+  const [selectedItem, setSelectedItem] = useState(0);
+  const [isParentsSubmenuOpen, setIsParentsSubmenuOpen] = useState(false);
+  const [isStudentsSubmenuOpen, setIsStudentsSubmenuOpen] = useState(false);
+
+  const handleClick = (index) => {
+    setSelectedItem(index);
+    if (index === 0) {
+      setIsParentsSubmenuOpen(!isParentsSubmenuOpen);
+      setIsStudentsSubmenuOpen(false);
+    } else if (index === 1) {
+      setIsStudentsSubmenuOpen(!isStudentsSubmenuOpen);
+      setIsParentsSubmenuOpen(false);
+    } else {
+      setIsParentsSubmenuOpen(false);
+      setIsStudentsSubmenuOpen(false);
+    }
+  };
+
   const auth = useAuth();
 
   const [parents, setParents] = useState({ data: [] });
   const [showAddParentModal, setShowAddParentModal] = useState(false);
-  const [showEditParentModal, setShowEditParentModal] = useState(false);
+  // const [showEditParentModal, setShowEditParentModal] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [image, setImage] = useState("");
-  const [adress, setAdress] = useState("");
+  const [address, setAddress] = useState("");
 
   const fetchParents = () => {
     httpClient
@@ -66,73 +86,50 @@ const Parent = () => {
       });
   };
 
-  const handleParentUpdate = (e: any) => {
-    e.preventDefault();
-    handleUpdate();
-  };
-
-  const handleUpdate = () => {
-    const parentData = {
-      firstName: firstName,
-      lastName: lastName,
-      email: email,
-      phone: phone,
-      password: password,
-      adress: adress,
-    };
-
-    httpClient
-      .put("/parent/" + uuid, parentData)
-      .then((res) => {
-        setShowEditParentModal(false);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <header className="bg-white shadow w-full flex items-center p-6">
-        <h1 className="text-3xl font-bold text-red-500 mr-6">Veliler</h1>
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setShowAddParentModal(true)}
-        >
-          Yeni Veli Ekle
-        </button>
+        <h1 className="text-3xl font-bold text-gray-500 mr-6">
+          Veliler ve Öğrenciler Yönetim Modülü
+        </h1>
       </header>
       <div className="flex w-full">
-        <div className="flex flex-col w-1/5 bg-gray-800 p-4">
+        <div className="flex flex-col w-1/6 bg-[#0758C5] p-4">
           <nav>
             <ul className="space-y-4">
-              <li className="text-white">Velinize Öğrenci Ekleyin</li>
+              {["Veliler", "Öğrenciler"].map((item, index) => (
+                <li
+                  key={index}
+                  className={`text-white cursor-pointer p-2 rounded-md ${
+                    selectedItem === index ? "bg-[#044a8f] w-full" : ""
+                  }`}
+                  onClick={() => handleClick(index)}
+                >
+                  {item}
+                  {item === "Veliler" && isParentsSubmenuOpen && (
+                    <ul className="mt-2 space-y-2 pl-4">
+                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
+                        <button onClick={() => setShowAddParentModal(true)}>
+                          Yeni Veli Ekle
+                        </button>
+                      </li>
+                    </ul>
+                  )}
+                  {item === "Öğrenciler" && isStudentsSubmenuOpen && (
+                    <ul className="mt-2 space-y-2 pl-4">
+                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
+                        <button>Yeni Öğrenci Ekle</button>
+                      </li>
+                    </ul>
+                  )}
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
-        <div className="flex flex-col w-4/5 p-4">
-          <h2 className="text-2xl font-semibold my-4">Veliler</h2>
-          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
-            {(parents?.data ?? []).map((parent, index) => (
-              <div
-                key={index}
-                className="bg-gray-200 p-4 rounded flex justify-between items-center"
-              >
-                <span>{parent?.user?.firstName}</span>
-                <div className="flex flex-row justify-end gap-10">
-                  <button
-                    onClick={() => setShowEditParentModal(true)}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                  >
-                    Düzenle
-                  </button>
-                  <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
-                    Sil
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="flex w-full">
+          {selectedItem === 0 && <ParentsList />}
+          {selectedItem === 1 && <StudentList />}
         </div>
       </div>
       {showAddParentModal && (
@@ -154,6 +151,13 @@ const Parent = () => {
                 className="border rounded py-2 px-3 focus:outline-none"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Veli Öğrenci Ad Soyad"
+                className="border rounded py-2 px-3 focus:outline-none"
+                // value={lastName}
+                // onChange={(e) => setLastName(e.target.value)}
               />
               <input
                 type="text"
@@ -187,8 +191,22 @@ const Parent = () => {
                 type="text"
                 placeholder="Veli Adresi"
                 className="border rounded py-2 px-3 focus:outline-none"
-                value={adress}
-                onChange={(e) => setAdress(e.target.value)}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Veli Adresi 2"
+                className="border rounded py-2 px-3 focus:outline-none"
+                // value={address}
+                // onChange={(e) => setAddress(e.target.value)}
+              />
+              <input
+                type="text"
+                placeholder="Veli Adresi Detay"
+                className="border rounded py-2 px-3 focus:outline-none"
+                // value={address}
+                // onChange={(e) => setAddress(e.target.value)}
               />
               <div className="flex justify-end">
                 <button
@@ -208,7 +226,7 @@ const Parent = () => {
           </div>
         </div>
       )}
-      {showEditParentModal && (
+      {/* {showEditParentModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
           <div className="relative bg-white w-1/2 p-8 rounded-lg">
@@ -260,8 +278,8 @@ const Parent = () => {
                 type="text"
                 placeholder="Veli Adresi"
                 className="border rounded py-2 px-3 focus:outline-none"
-                value={adress}
-                onChange={(e) => setAdress(e.target.value)}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
               />
               <div className="flex justify-end">
                 <button
@@ -280,7 +298,7 @@ const Parent = () => {
             </form>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

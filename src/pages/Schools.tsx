@@ -1,9 +1,29 @@
 import { useAuth } from "@/hoc/AuthContext";
 import httpClient from "@/httpClient";
 import React, { useEffect, useState } from "react";
+import UsersList from "./UsersList";
+import SchoolsList from "./SchoolsList";
 
 const Schools = () => {
   const auth = useAuth();
+
+  const [selectedItem, setSelectedItem] = useState(0);
+  const [isSchoolsSubmenuOpen, setIsSchoolsSubmenuOpen] = useState(false);
+  const [isUsersSubmenuOpen, setIsUsersSubmenuOpen] = useState(false);
+
+  const handleClick = (index) => {
+    setSelectedItem(index);
+    if (index === 0) {
+      setIsSchoolsSubmenuOpen(!isSchoolsSubmenuOpen);
+      setIsUsersSubmenuOpen(false);
+    } else if (index === 1) {
+      setIsUsersSubmenuOpen(!isUsersSubmenuOpen);
+      setIsSchoolsSubmenuOpen(false);
+    } else {
+      setIsSchoolsSubmenuOpen(false);
+      setIsUsersSubmenuOpen(false);
+    }
+  };
 
   const [schools, setSchools] = useState({ data: [] });
   const [newSchoolName, setNewSchoolName] = useState("");
@@ -57,47 +77,47 @@ const Schools = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <header className="bg-white shadow w-full flex items-center p-6">
-        <h1 className="text-3xl font-bold text-red-500 mr-6">Okullar</h1>
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => setShowAddSchoolModal(true)}
-        >
-          Yeni Okul Ekle
-        </button>
+        <h1 className="text-3xl font-bold text-gray-500 mr-6">
+          Okullar ve Kullanıcılar Yönetim Modülü
+        </h1>
       </header>
       <div className="flex w-full">
-        <div className="flex flex-col w-1/5 bg-gray-800 p-4">
+        <div className="flex flex-col w-1/6 bg-[#0758C5] p-4">
           <nav>
             <ul className="space-y-4">
-              <li className="text-white">Rotalar</li>
-              <li className="text-white">Servisler</li>
-              <li className="text-white">Veliler</li>
+              {["Okullar", "Kullanıcılar"].map((item, index) => (
+                <li
+                  key={index}
+                  className={`text-white cursor-pointer p-2 rounded-md ${
+                    selectedItem === index ? "bg-[#044a8f] w-full" : ""
+                  }`}
+                  onClick={() => handleClick(index)}
+                >
+                  {item}
+                  {item === "Okullar" && isSchoolsSubmenuOpen && (
+                    <ul className="mt-2 space-y-2 pl-4">
+                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
+                        <button onClick={() => setShowAddSchoolModal(true)}>
+                          Yeni Okul Ekle
+                        </button>
+                      </li>
+                    </ul>
+                  )}
+                  {item === "Kullanıcılar" && isUsersSubmenuOpen && (
+                    <ul className="mt-2 space-y-2 pl-4">
+                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
+                        <button>Yeni Kullanıcı Ekle</button>
+                      </li>
+                    </ul>
+                  )}
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
-        <div className="flex flex-col w-4/5 p-4">
-          {/* <h2 className="text-2xl font-semibold my-4">Kullanıcı Rolleri</h2>
-          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
-            {(auth.authData?.roles ?? []).map((role, index) => (
-              <p key={index} className="bg-gray-200 p-2 rounded">
-                {role}
-              </p>
-            ))}
-          </div> */}
-          <h2 className="text-2xl font-semibold my-4">Okullar</h2>
-          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
-            {(schools?.data ?? []).map((school, index) => (
-              <div
-                key={index}
-                className="bg-gray-200 p-4 rounded flex justify-between items-center"
-              >
-                <span>{school.name}</span>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Düzenle
-                </button>
-              </div>
-            ))}
-          </div>
+        <div className="flex w-full">
+          {selectedItem === 0 && <SchoolsList />}
+          {selectedItem === 1 && <UsersList />}
         </div>
       </div>
       {showAddSchoolModal && (
