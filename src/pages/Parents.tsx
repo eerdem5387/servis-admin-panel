@@ -26,8 +26,10 @@ const Parent = () => {
   const auth = useAuth();
 
   const [parents, setParents] = useState({ data: [] });
+  const [students, setStudents] = useState({ data: [] });
+  const [schools, setSchools] = useState({ data: [] });
   const [showAddParentModal, setShowAddParentModal] = useState(false);
-  // const [showEditParentModal, setShowEditParentModal] = useState(false);
+  const [showAddStudentModal, setShowAddStudentModal] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -35,6 +37,9 @@ const Parent = () => {
   const [password, setPassword] = useState("");
   const [image, setImage] = useState("");
   const [address, setAddress] = useState("");
+  const [selectedParent, setSelectedParent] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("");
+  const [selectedSchool, setSelectedSchool] = useState("");
 
   const fetchParents = () => {
     httpClient
@@ -54,6 +59,47 @@ const Parent = () => {
   useEffect(() => {
     if (auth.authData.isAuth) {
       fetchParents();
+    }
+  }, [auth]);
+
+  const fetchStudents = () => {
+    httpClient
+      .get("/student")
+      .then((res) => {
+        console.log(res.data);
+        setStudents(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status === 401) {
+          auth.refreshToken();
+          console.log(err);
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (auth.authData.isAuth) {
+      fetchStudents();
+    }
+  }, [auth]);
+
+  const fetchSchools = () => {
+    httpClient
+      .get("/school")
+      .then((res) => {
+        setSchools(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status === 401) {
+          auth.refreshToken();
+          console.log(err);
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (auth.authData.isAuth) {
+      fetchSchools();
     }
   }, [auth]);
 
@@ -86,6 +132,35 @@ const Parent = () => {
       });
   };
 
+  const handleSubmitStudent = (e: any) => {
+    e.preventDefault();
+    createStudent();
+  };
+
+  const createStudent = () => {
+    const studentData = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phone: phone,
+      password: password,
+      // image: image,
+    };
+
+    httpClient
+      .post("/student", studentData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      .then((res) => {
+        setShowAddStudentModal(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <header className="bg-white shadow w-full flex items-center p-6">
@@ -94,7 +169,7 @@ const Parent = () => {
         </h1>
       </header>
       <div className="flex w-full">
-        <div className="flex flex-col w-1/6 bg-[#0758C5] p-4">
+        <div className="flex flex-col w-1/6 h-screen bg-[#0758C5] p-4">
           <nav>
             <ul className="space-y-4">
               {["Veliler", "Öğrenciler"].map((item, index) => (
@@ -118,7 +193,9 @@ const Parent = () => {
                   {item === "Öğrenciler" && isStudentsSubmenuOpen && (
                     <ul className="mt-2 space-y-2 pl-4">
                       <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button>Yeni Öğrenci Ekle</button>
+                        <button onClick={() => setShowAddStudentModal(true)}>
+                          Yeni Öğrenci Ekle
+                        </button>
                       </li>
                     </ul>
                   )}
@@ -208,6 +285,30 @@ const Parent = () => {
                 // value={address}
                 // onChange={(e) => setAddress(e.target.value)}
               />
+              <select
+                className="border rounded py-2 px-3 focus:outline-none"
+                value={selectedStudent}
+                onChange={(e) => setSelectedStudent(e.target.value)}
+              >
+                <option value="">Bağlı Öğrenci Seçin</option>
+                {(students?.data ?? []).map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.user.firstName} {student.user.lastName}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="border rounded py-2 px-3 focus:outline-none"
+                value={selectedSchool}
+                onChange={(e) => setSelectedSchool(e.target.value)}
+              >
+                <option value="">Bağlı Okul Seçin</option>
+                {(schools?.data ?? []).map((school) => (
+                  <option key={school.id} value={school.id}>
+                    {school.name}
+                  </option>
+                ))}
+              </select>
               <div className="flex justify-end">
                 <button
                   type="submit"
@@ -226,70 +327,90 @@ const Parent = () => {
           </div>
         </div>
       )}
-      {/* {showEditParentModal && (
+      {showAddStudentModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
           <div className="relative bg-white w-1/2 p-8 rounded-lg">
-            <h3 className="text-lg font-medium mb-4">Veliyi Düzenle</h3>
-            <form onSubmit={handleParentUpdate} className="flex flex-col gap-4">
+            <h3 className="text-lg font-medium mb-4">Yeni Öğrenci Ekle</h3>
+            <form
+              onSubmit={handleSubmitStudent}
+              className="flex flex-col gap-4"
+            >
               <input
                 type="text"
-                placeholder="Veli Adı"
+                placeholder="Öğrenci Adı"
                 className="border rounded py-2 px-3 focus:outline-none"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
               />
               <input
                 type="text"
-                placeholder="Veli Soyadı"
+                placeholder="Öğrenci Soyadı"
                 className="border rounded py-2 px-3 focus:outline-none"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
               />
               <input
                 type="text"
-                placeholder="Veli Mail Adresi"
+                placeholder="Öğrenci Mail Adresi"
                 className="border rounded py-2 px-3 focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <input
                 type="text"
-                placeholder="Veli Telefon Numarası"
+                placeholder="Öğrenci Telefon Numarası"
                 className="border rounded py-2 px-3 focus:outline-none"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
               <input
                 type="text"
-                placeholder="Veli Kullanıcı Şifresi"
+                placeholder="Öğrenci Kullanıcı Şifresi"
                 className="border rounded py-2 px-3 focus:outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
               <input
                 type="text"
-                placeholder="Veli Görsel"
+                placeholder="Öğrenci Görsel"
                 className="border rounded py-2 px-3 focus:outline-none"
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
               />
-              <input
-                type="text"
-                placeholder="Veli Adresi"
+              <select
                 className="border rounded py-2 px-3 focus:outline-none"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
+                value={selectedParent}
+                onChange={(e) => setSelectedParent(e.target.value)}
+              >
+                <option value="">Bağlı Veli Seçin</option>
+                {(parents?.data ?? []).map((parent) => (
+                  <option key={parent.id} value={parent.id}>
+                    {parent.user.firstName} {parent.user.lastName}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="border rounded py-2 px-3 focus:outline-none"
+                value={selectedSchool}
+                onChange={(e) => setSelectedSchool(e.target.value)}
+              >
+                <option value="">Bağlı Okul Seçin</option>
+                {(schools?.data ?? []).map((school) => (
+                  <option key={school.id} value={school.id}>
+                    {school.name}
+                  </option>
+                ))}
+              </select>
               <div className="flex justify-end">
                 <button
                   type="submit"
                   className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
                 >
-                  Güncelle
+                  Ekle
                 </button>
                 <button
-                  onClick={() => setShowEditParentModal(false)}
+                  onClick={() => setShowAddStudentModal(false)}
                   className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
                 >
                   İptal
@@ -298,7 +419,7 @@ const Parent = () => {
             </form>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 };

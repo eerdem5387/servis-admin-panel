@@ -6,6 +6,7 @@ const ParentsList = () => {
   const auth = useAuth();
 
   const [parents, setParents] = useState({ data: [] });
+  const [students, setStudents] = useState({ data: [] });
   const [showAddParentModal, setShowAddParentModal] = useState(false);
   const [showEditParentModal, setShowEditParentModal] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -15,6 +16,7 @@ const ParentsList = () => {
   const [password, setPassword] = useState("");
   const [image, setImage] = useState("");
   const [address, setAddress] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("");
 
   const fetchParents = () => {
     httpClient
@@ -34,6 +36,27 @@ const ParentsList = () => {
   useEffect(() => {
     if (auth.authData.isAuth) {
       fetchParents();
+    }
+  }, [auth]);
+
+  const fetchStudents = () => {
+    httpClient
+      .get("/student")
+      .then((res) => {
+        console.log(res.data);
+        setStudents(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status === 401) {
+          auth.refreshToken();
+          console.log(err);
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (auth.authData.isAuth) {
+      fetchStudents();
     }
   }, [auth]);
 
@@ -109,12 +132,20 @@ const ParentsList = () => {
               className="bg-gray-200 p-4 rounded flex justify-between items-center"
             >
               <span>{parent?.user?.firstName}</span>
-              <button
-                className="bg-[#0758C5] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => setShowEditParentModal(true)}
-              >
-                Düzenle
-              </button>
+              <div className="flex flex-row justify-end gap-10">
+                <button
+                  className="bg-[#0758C5] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  onClick={() => setShowEditParentModal(true)}
+                >
+                  Düzenle
+                </button>
+                <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+                  Öğrenci Ekle
+                </button>
+                <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                  Sil
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -174,6 +205,18 @@ const ParentsList = () => {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
+              <select
+                className="border rounded py-2 px-3 focus:outline-none"
+                value={selectedStudent}
+                onChange={(e) => setSelectedStudent(e.target.value)}
+              >
+                <option value="">Bağlı Öğrenci Seçin</option>
+                {(students?.data ?? []).map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.user.firstName} {student.user.lastName}
+                  </option>
+                ))}
+              </select>
               <div className="flex justify-end">
                 <button
                   type="submit"
