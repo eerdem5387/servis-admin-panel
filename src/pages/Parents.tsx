@@ -3,6 +3,8 @@ import httpClient from "@/httpClient";
 import React, { useEffect, useState } from "react";
 import ParentsList from "./ParentsList";
 import StudentList from "./StudentList";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import "../styles/Home.module.css";
 
 const Parent = () => {
   const [selectedItem, setSelectedItem] = useState(0);
@@ -40,6 +42,7 @@ const Parent = () => {
   const [selectedParent, setSelectedParent] = useState("");
   const [selectedStudent, setSelectedStudent] = useState("");
   const [selectedSchool, setSelectedSchool] = useState("");
+  const [newParentName, setNewParentName] = useState("");
 
   const fetchParents = () => {
     httpClient
@@ -103,11 +106,6 @@ const Parent = () => {
     }
   }, [auth]);
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    createParent();
-  };
-
   const createParent = () => {
     const parentData = {
       firstName: firstName,
@@ -132,9 +130,9 @@ const Parent = () => {
       });
   };
 
-  const handleSubmitStudent = (e: any) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    createStudent();
+    createParent();
   };
 
   const createStudent = () => {
@@ -161,6 +159,11 @@ const Parent = () => {
       });
   };
 
+  const handleSubmitStudent = (e) => {
+    e.preventDefault();
+    createStudent();
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <header className="bg-white shadow w-full flex items-center p-6">
@@ -180,9 +183,16 @@ const Parent = () => {
                   }`}
                   onClick={() => handleClick(index)}
                 >
-                  {item}
-                  {item === "Veliler" && isParentsSubmenuOpen && (
-                    <ul className="mt-2 space-y-2 pl-4">
+                  <span className="flex justify-between items-center">
+                    {item}
+                    <i className="fas fa-plus ml-2"></i>
+                  </span>
+                  {item === "Veliler" && (
+                    <ul
+                      className={`transition-height ${
+                        isParentsSubmenuOpen ? "open" : ""
+                      } mt-2 space-y-2 pl-4`}
+                    >
                       <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
                         <button onClick={() => setShowAddParentModal(true)}>
                           Yeni Veli Ekle
@@ -190,8 +200,12 @@ const Parent = () => {
                       </li>
                     </ul>
                   )}
-                  {item === "Öğrenciler" && isStudentsSubmenuOpen && (
-                    <ul className="mt-2 space-y-2 pl-4">
+                  {item === "Öğrenciler" && (
+                    <ul
+                      className={`transition-height ${
+                        isStudentsSubmenuOpen ? "open" : ""
+                      } mt-2 space-y-2 pl-4`}
+                    >
                       <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
                         <button onClick={() => setShowAddStudentModal(true)}>
                           Yeni Öğrenci Ekle
@@ -212,211 +226,233 @@ const Parent = () => {
       {showAddParentModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-          <div className="relative bg-white w-1/2 p-8 rounded-lg">
-            <h3 className="text-lg font-medium mb-4">Yeni Veli Ekle</h3>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <input
-                type="text"
-                placeholder="Veli Adı"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Soyadı"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Öğrenci Ad Soyad"
-                className="border rounded py-2 px-3 focus:outline-none"
-                // value={lastName}
-                // onChange={(e) => setLastName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Mail Adresi"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Telefon Numarası"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Kullanıcı Şifresi"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Görsel"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Adresi"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Adresi 2"
-                className="border rounded py-2 px-3 focus:outline-none"
-                // value={address}
-                // onChange={(e) => setAddress(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Veli Adresi Detay"
-                className="border rounded py-2 px-3 focus:outline-none"
-                // value={address}
-                // onChange={(e) => setAddress(e.target.value)}
-              />
-              <select
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={selectedStudent}
-                onChange={(e) => setSelectedStudent(e.target.value)}
-              >
-                <option value="">Bağlı Öğrenci Seçin</option>
-                {(students?.data ?? []).map((student) => (
-                  <option key={student.id} value={student.id}>
-                    {student.user.firstName} {student.user.lastName}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={selectedSchool}
-                onChange={(e) => setSelectedSchool(e.target.value)}
-              >
-                <option value="">Bağlı Okul Seçin</option>
-                {(schools?.data ?? []).map((school) => (
-                  <option key={school.id} value={school.id}>
-                    {school.name}
-                  </option>
-                ))}
-              </select>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
-                >
-                  Ekle
-                </button>
-                <button
-                  onClick={() => setShowAddParentModal(false)}
-                  className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
-                >
-                  İptal
-                </button>
+          <div className="relative bg-white modal-container w-11/12 h-screen p-8 rounded-lg flex-row">
+            <button
+              className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800"
+              onClick={() => setShowAddParentModal(false)}
+            >
+              <i className="fas fa-times"></i>
+            </button>
+            <div className="w-full flex flex-row">
+              <div className="w-1/2 flex flex-col">
+                <h3 className="text-lg font-medium mb-4">Yeni Veli Ekle</h3>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+                  <input
+                    type="text"
+                    placeholder="Veli Adı"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Soyadı"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Öğrenci Ad Soyad"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    // value={lastName}
+                    // onChange={(e) => setLastName(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Mail Adresi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Telefon Numarası"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Kullanıcı Şifresi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Görsel"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Adresi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Adresi 2"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    // value={address}
+                    // onChange={(e) => setAddress(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Veli Adresi Detay"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    // value={address}
+                    // onChange={(e) => setAddress(e.target.value)}
+                  />
+                  <select
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={selectedStudent}
+                    onChange={(e) => setSelectedStudent(e.target.value)}
+                  >
+                    <option value="">Bağlı Öğrenci Seçin</option>
+                    {(students?.data ?? []).map((student) => (
+                      <option key={student.id} value={student.id}>
+                        {student.user.firstName} {student.user.lastName}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={selectedSchool}
+                    onChange={(e) => setSelectedSchool(e.target.value)}
+                  >
+                    <option value="">Bağlı Okul Seçin</option>
+                    {(schools?.data ?? []).map((school) => (
+                      <option key={school.id} value={school.id}>
+                        {school.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+                    >
+                      Ekle
+                    </button>
+                    <button
+                      onClick={() => setShowAddParentModal(false)}
+                      className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
+                    >
+                      İptal
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
+              <div className="w-1/2 flex flex-col"></div>
+            </div>
           </div>
         </div>
       )}
       {showAddStudentModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-          <div className="relative bg-white w-1/2 p-8 rounded-lg">
-            <h3 className="text-lg font-medium mb-4">Yeni Öğrenci Ekle</h3>
-            <form
-              onSubmit={handleSubmitStudent}
-              className="flex flex-col gap-4"
+          <div className="relative bg-white modal-container w-11/12 h-screen p-8 rounded-lg flex-row">
+            <button
+              className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800"
+              onClick={() => setShowAddStudentModal(false)}
             >
-              <input
-                type="text"
-                placeholder="Öğrenci Adı"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Öğrenci Soyadı"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Öğrenci Mail Adresi"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Öğrenci Telefon Numarası"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Öğrenci Kullanıcı Şifresi"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-              <input
-                type="text"
-                placeholder="Öğrenci Görsel"
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-              />
-              <select
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={selectedParent}
-                onChange={(e) => setSelectedParent(e.target.value)}
-              >
-                <option value="">Bağlı Veli Seçin</option>
-                {(parents?.data ?? []).map((parent) => (
-                  <option key={parent.id} value={parent.id}>
-                    {parent.user.firstName} {parent.user.lastName}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="border rounded py-2 px-3 focus:outline-none"
-                value={selectedSchool}
-                onChange={(e) => setSelectedSchool(e.target.value)}
-              >
-                <option value="">Bağlı Okul Seçin</option>
-                {(schools?.data ?? []).map((school) => (
-                  <option key={school.id} value={school.id}>
-                    {school.name}
-                  </option>
-                ))}
-              </select>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+              <i className="fas fa-times"></i>
+            </button>
+            <div className="w-full flex flex-row">
+              <div className="w-1/2 flex flex-col">
+                <h3 className="text-lg font-medium mb-4">Yeni Öğrenci Ekle</h3>
+                <form
+                  onSubmit={handleSubmitStudent}
+                  className="flex flex-col gap-2"
                 >
-                  Ekle
-                </button>
-                <button
-                  onClick={() => setShowAddStudentModal(false)}
-                  className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
-                >
-                  İptal
-                </button>
+                  <input
+                    type="text"
+                    placeholder="Öğrenci Adı"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Öğrenci Soyadı"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Öğrenci Mail Adresi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Öğrenci Telefon Numarası"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Öğrenci Kullanıcı Şifresi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Öğrenci Görsel"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={image}
+                    onChange={(e) => setImage(e.target.value)}
+                  />
+                  <select
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={selectedParent}
+                    onChange={(e) => setSelectedParent(e.target.value)}
+                  >
+                    <option value="">Bağlı Veli Seçin</option>
+                    {(parents?.data ?? []).map((parent) => (
+                      <option key={parent.id} value={parent.id}>
+                        {parent.user.firstName} {parent.user.lastName}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    value={selectedSchool}
+                    onChange={(e) => setSelectedSchool(e.target.value)}
+                  >
+                    <option value="">Bağlı Okul Seçin</option>
+                    {(schools?.data ?? []).map((school) => (
+                      <option key={school.id} value={school.id}>
+                        {school.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+                    >
+                      Ekle
+                    </button>
+                    <button
+                      onClick={() => setShowAddStudentModal(false)}
+                      className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
+                    >
+                      İptal
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
+              <div className="w-1/2 flex flex-col"></div>
+            </div>
           </div>
         </div>
       )}

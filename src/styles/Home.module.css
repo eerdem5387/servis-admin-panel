@@ -7,6 +7,16 @@
   min-height: 100vh;
 }
 
+.transition-height {
+  transition: max-height 0.3s ease-in-out;
+  overflow: hidden;
+  max-height: 0;
+}
+
+.transition-height.open {
+  max-height: 200px;
+}
+
 .description {
   display: inherit;
   justify-content: inherit;

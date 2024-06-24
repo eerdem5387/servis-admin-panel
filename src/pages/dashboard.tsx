@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Map from "@/components/Map";
+import Link from "next/link";
 
 const Dashboard = () => {
   return (
@@ -11,9 +12,34 @@ const Dashboard = () => {
       </header>
       <div className="flex w-full">
         <div className="flex flex-col w-1/6 h-screen bg-[#0758C5] p-4">
-          <nav>
-            <ul className="space-y-4">
-              <li className="text-white">Raporlar</li>
+          <nav className="flex flex-col gap-5">
+            <ul className="">
+              <Link href="#" className="text-white">
+                <span className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium">
+                  Ana Menü
+                </span>
+              </Link>
+            </ul>
+            <ul className="">
+              <Link href="/VehicleTrack" className="text-white">
+                <span className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium">
+                  Araç Takibi
+                </span>
+              </Link>
+            </ul>
+            <ul className="">
+              <Link href="/Stats" className="text-white">
+                <span className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium">
+                  İstatistikler
+                </span>
+              </Link>
+            </ul>
+            <ul className="">
+              <Link href="/Rapor" className="text-white">
+                <span className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-md font-medium">
+                  Raporlar
+                </span>
+              </Link>
             </ul>
           </nav>
         </div>

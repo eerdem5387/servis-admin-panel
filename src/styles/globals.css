@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.transition-height {
+  transition: max-height 0.4s ease-in-out;
+  overflow: hidden;
+  max-height: 0;
+}
+
+.transition-height.open {
+  max-height: 200px;
+}

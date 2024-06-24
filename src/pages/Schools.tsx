@@ -3,6 +3,8 @@ import httpClient from "@/httpClient";
 import React, { useEffect, useState } from "react";
 import UsersList from "./UsersList";
 import SchoolsList from "./SchoolsList";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import "../styles/Home.module.css";
 
 const Schools = () => {
   const auth = useAuth();
@@ -28,6 +30,7 @@ const Schools = () => {
   const [schools, setSchools] = useState({ data: [] });
   const [newSchoolName, setNewSchoolName] = useState("");
   const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
 
   const fetchSchools = () => {
     httpClient
@@ -93,9 +96,16 @@ const Schools = () => {
                   }`}
                   onClick={() => handleClick(index)}
                 >
-                  {item}
-                  {item === "Okullar" && isSchoolsSubmenuOpen && (
-                    <ul className="mt-2 space-y-2 pl-4">
+                  <span className="flex justify-between items-center">
+                    {item}
+                    <i className="fas fa-plus ml-2"></i>
+                  </span>
+                  {item === "Okullar" && (
+                    <ul
+                      className={`transition-height ${
+                        isSchoolsSubmenuOpen ? "open" : ""
+                      } mt-2 space-y-2 pl-4`}
+                    >
                       <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
                         <button onClick={() => setShowAddSchoolModal(true)}>
                           Yeni Okul Ekle
@@ -103,10 +113,16 @@ const Schools = () => {
                       </li>
                     </ul>
                   )}
-                  {item === "Kullanıcılar" && isUsersSubmenuOpen && (
-                    <ul className="mt-2 space-y-2 pl-4">
+                  {item === "Kullanıcılar" && (
+                    <ul
+                      className={`transition-height ${
+                        isUsersSubmenuOpen ? "open" : ""
+                      } mt-2 space-y-2 pl-4`}
+                    >
                       <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button>Yeni Kullanıcı Ekle</button>
+                        <button onClick={() => setShowAddUserModal(true)}>
+                          Yeni Kullanıcı Ekle
+                        </button>
                       </li>
                     </ul>
                   )}
@@ -123,32 +139,137 @@ const Schools = () => {
       {showAddSchoolModal && (
         <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
           <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-          <div className="relative bg-white w-1/2 p-8 rounded-lg">
-            <h3 className="text-lg font-medium mb-4">Yeni Okul Ekle</h3>
-            <form onSubmit={handleCreateSchool} className="flex flex-col gap-4">
-              <input
-                type="text"
-                value={newSchoolName}
-                onChange={(e) => setNewSchoolName(e.target.value)}
-                placeholder="Okul Adı"
-                className="border rounded py-2 px-3 focus:outline-none"
-                required
-              />
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+          <div className="relative bg-white modal-container w-11/12 h-screen p-8 rounded-lg flex-row">
+            <button
+              className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800"
+              onClick={() => setShowAddSchoolModal(false)}
+            >
+              <i className="fas fa-times"></i>
+            </button>
+            <div className="w-full flex flex-row">
+              <div className="w-1/2 flex flex-col">
+                <h3 className="text-lg font-medium mb-4">Yeni Okul Ekle</h3>
+                <form
+                  onSubmit={handleCreateSchool}
+                  className="flex flex-col gap-4"
                 >
-                  Ekle
-                </button>
-                <button
-                  // onClick={() => setShowAddSchoolModal(false)}
-                  className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
-                >
-                  İptal
-                </button>
+                  <input
+                    type="text"
+                    value={newSchoolName}
+                    onChange={(e) => setNewSchoolName(e.target.value)}
+                    placeholder="Okul Adı"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Adres"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Yetkili Kişi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Telefon Numarası"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Mail Adresi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+                    >
+                      Ekle
+                    </button>
+                    <button
+                      onClick={() => setShowAddSchoolModal(false)}
+                      className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
+                    >
+                      İptal
+                    </button>
+                  </div>
+                </form>
               </div>
-            </form>
+              <div className="w-1/2 flex flex-col"></div>
+            </div>
+          </div>
+        </div>
+      )}
+      {showAddUserModal && (
+        <div className="fixed z-10 inset-0 overflow-y-auto flex items-center justify-center">
+          <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+          <div className="relative bg-white modal-container w-11/12 h-screen p-8 rounded-lg flex-row">
+            <button
+              className="absolute top-0 right-0 m-4 text-gray-600 hover:text-gray-800"
+              onClick={() => setShowAddUserModal(false)}
+            >
+              <i className="fas fa-times"></i>
+            </button>
+            <div className="flex flex-row w-full">
+              <div className="w-1/2 flex flex-col">
+                <h3 className="text-lg font-medium mb-4">
+                  Yeni Kullanıcı Ekle
+                </h3>
+                <form className="flex flex-col gap-4">
+                  <input
+                    type="text"
+                    placeholder="Kullanıcak Kişi İsim"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Kullanıcak Kişi Soyisim"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Mail Adresi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Telefon"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="text"
+                    placeholder="Görsel"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
+                    >
+                      Ekle
+                    </button>
+                    <button
+                      onClick={() => setShowAddUserModal(false)}
+                      className="ml-2 bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
+                    >
+                      İptal
+                    </button>
+                  </div>
+                </form>
+              </div>
+              <div className="w-1/2 flex flex-col"></div>
+            </div>
           </div>
         </div>
       )}

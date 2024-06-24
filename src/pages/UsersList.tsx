@@ -3,14 +3,14 @@ import httpClient from "@/httpClient";
 import { useEffect, useState } from "react";
 
 const UsersList = () => {
-  const [schools, setSchools] = useState({ data: [] });
+  const [users, setUsers] = useState({ data: [] });
   const auth = useAuth();
 
-  const fetchSchools = () => {
+  const fetchUsers = () => {
     httpClient
-      .get("/school")
+      .get("/user")
       .then((res) => {
-        setSchools(res.data);
+        setUsers(res.data);
       })
       .catch((err) => {
         if (err.response.status === 401) {
@@ -22,7 +22,7 @@ const UsersList = () => {
 
   useEffect(() => {
     if (auth.authData.isAuth) {
-      fetchSchools();
+      fetchUsers();
     }
   }, [auth]);
 
@@ -37,16 +37,14 @@ const UsersList = () => {
               </p>
             ))}
           </div> */}
-        <h2 className="text-2xl font-semibold my-4">
-          Kullanıcılar (Şu Anlık Okulların Datasını Basıyoruz)
-        </h2>
+        <h2 className="text-2xl font-semibold my-4">Kullanıcılar</h2>
         <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
-          {(schools?.data ?? []).map((school, index) => (
+          {(users?.data ?? []).map((user, index) => (
             <div
               key={index}
               className="bg-gray-200 p-4 rounded flex justify-between items-center"
             >
-              <span>{school.name}</span>
+              <span>{user.name}</span>
               <button className="bg-[#0758C5] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                 Düzenle
               </button>
