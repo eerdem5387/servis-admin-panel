@@ -5,6 +5,15 @@ import { useEffect, useState } from "react";
 const StudentsList = () => {
   const auth = useAuth();
 
+  const [studentphoneNumber, setStudentPhoneNumber] = useState("");
+
+  const handleStudentChange = (e) => {
+    const value = e.target.value;
+    if (/^\d{0,11}$/.test(value)) {
+      setStudentPhoneNumber(value);
+    }
+  };
+
   const [parents, setParents] = useState({ data: [] });
   const [students, setStudents] = useState({ data: [] });
   const [showEditStudentModal, setShowEditStudentModal] = useState(false);
@@ -86,7 +95,7 @@ const StudentsList = () => {
 
   return (
     <div className="flex flex-full w-full">
-      <div className="flex flex-col w-4/5 p-4">
+      <div className="flex flex-col w-full p-4">
         {/* <h2 className="text-2xl font-semibold my-4">Kullanıcı Rolleri</h2>
           <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
             {(auth.authData?.roles ?? []).map((role, index) => (
@@ -96,21 +105,21 @@ const StudentsList = () => {
             ))}
           </div> */}
         <h2 className="text-2xl font-semibold my-4">Öğrenciler</h2>
-        <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
+        <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-2">
           {(students?.data ?? []).map((students, index) => (
             <div
               key={index}
-              className="bg-gray-200 p-4 rounded flex justify-between items-center"
+              className="bg-gray-200 p-1 rounded flex justify-between items-center"
             >
-              <span>{students?.user?.firstName}</span>
-              <div className="flex flex-row justify-end gap-10">
+              <span className="flex p-1">{students?.user?.firstName}</span>
+              <div className="flex flex-row justify-end gap-7 px-2">
                 <button
-                  className="bg-[#0758C5] hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  className="bg-[#0758C5] hover:bg-blue-700 text-white font-bold py-1 my-1 px-4 rounded"
                   onClick={() => setShowEditStudentModal(true)}
                 >
                   Düzenle
                 </button>
-                <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+                <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 my-1 px-4 rounded">
                   Sil
                 </button>
               </div>
@@ -142,18 +151,23 @@ const StudentsList = () => {
                 onChange={(e) => setLastName(e.target.value)}
               />
               <input
-                type="text"
+                type="email"
+                id="email"
+                name="email"
                 placeholder="Öğrenci Mail Adresi"
                 className="border rounded py-2 px-3 focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <input
-                type="text"
-                placeholder="Öğrenci Telefon Numarası"
                 className="border rounded py-2 px-3 focus:outline-none"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                type="text"
+                id="phone"
+                name="phone"
+                value={studentphoneNumber}
+                onChange={handleStudentChange}
+                placeholder="Telefon Numarası"
+                maxLength={11}
               />
               <input
                 type="text"

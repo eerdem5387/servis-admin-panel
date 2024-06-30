@@ -11,6 +11,47 @@ const Parent = () => {
   const [isParentsSubmenuOpen, setIsParentsSubmenuOpen] = useState(false);
   const [isStudentsSubmenuOpen, setIsStudentsSubmenuOpen] = useState(false);
 
+  const [selectedParentImage, setParentSelectedImage] = useState(null);
+
+  const handleParentImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setParentSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  const [selectedStudentImage, setStudenttSelectedImage] = useState(null);
+
+  const handleStudentImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setStudenttSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const [parentphoneNumber, setParentPhoneNumber] = useState("");
+  const [studentphoneNumber, setStudentPhoneNumber] = useState("");
+
+  const handleParentChange = (e) => {
+    const value = e.target.value;
+    if (/^\d{0,11}$/.test(value)) {
+      setParentPhoneNumber(value);
+    }
+  };
+  const handleStudentChange = (e) => {
+    const value = e.target.value;
+    if (/^\d{0,11}$/.test(value)) {
+      setStudentPhoneNumber(value);
+    }
+  };
+
   const handleClick = (index) => {
     setSelectedItem(index);
     if (index === 0) {
@@ -83,26 +124,6 @@ const Parent = () => {
   useEffect(() => {
     if (auth.authData.isAuth) {
       fetchStudents();
-    }
-  }, [auth]);
-
-  const fetchSchools = () => {
-    httpClient
-      .get("/school")
-      .then((res) => {
-        setSchools(res.data);
-      })
-      .catch((err) => {
-        if (err.response.status === 401) {
-          auth.refreshToken();
-          console.log(err);
-        }
-      });
-  };
-
-  useEffect(() => {
-    if (auth.authData.isAuth) {
-      fetchSchools();
     }
   }, [auth]);
 
@@ -184,35 +205,25 @@ const Parent = () => {
                   onClick={() => handleClick(index)}
                 >
                   <span className="flex justify-between items-center">
-                    {item}
-                    <i className="fas fa-plus ml-2"></i>
+                    {item === "Veliler" && (
+                      <div className="flex flex-row items-center justify-between w-full">
+                        <span className="flex">Veliler</span>
+                        <i
+                          onClick={() => setShowAddParentModal(true)}
+                          className="fas fa-plus ml-2"
+                        ></i>
+                      </div>
+                    )}
+                    {item === "Öğrenciler" && (
+                      <div className="flex flex-row items-center justify-between w-full">
+                        <span className="flex">Öğrenciler</span>
+                        <i
+                          onClick={() => setShowAddStudentModal(true)}
+                          className="fas fa-plus ml-2"
+                        ></i>
+                      </div>
+                    )}
                   </span>
-                  {item === "Veliler" && (
-                    <ul
-                      className={`transition-height ${
-                        isParentsSubmenuOpen ? "open" : ""
-                      } mt-2 space-y-2 pl-4`}
-                    >
-                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button onClick={() => setShowAddParentModal(true)}>
-                          Yeni Veli Ekle
-                        </button>
-                      </li>
-                    </ul>
-                  )}
-                  {item === "Öğrenciler" && (
-                    <ul
-                      className={`transition-height ${
-                        isStudentsSubmenuOpen ? "open" : ""
-                      } mt-2 space-y-2 pl-4`}
-                    >
-                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button onClick={() => setShowAddStudentModal(true)}>
-                          Yeni Öğrenci Ekle
-                        </button>
-                      </li>
-                    </ul>
-                  )}
                 </li>
               ))}
             </ul>
@@ -233,7 +244,7 @@ const Parent = () => {
             >
               <i className="fas fa-times"></i>
             </button>
-            <div className="w-full flex flex-row">
+            <div className="w-full flex flex-row gap-5">
               <div className="w-1/2 flex flex-col">
                 <h3 className="text-lg font-medium mb-4">Yeni Veli Ekle</h3>
                 <form onSubmit={handleSubmit} className="flex flex-col gap-2">
@@ -259,18 +270,23 @@ const Parent = () => {
                     // onChange={(e) => setLastName(e.target.value)}
                   />
                   <input
-                    type="text"
+                    type="email"
+                    id="email"
+                    name="email"
                     placeholder="Veli Mail Adresi"
                     className="border rounded py-2 px-3 focus:outline-none"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                   />
                   <input
-                    type="text"
-                    placeholder="Veli Telefon Numarası"
                     className="border rounded py-2 px-3 focus:outline-none"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value={parentphoneNumber}
+                    onChange={handleParentChange}
+                    placeholder="Veli Telefon Numarası"
+                    maxLength={11}
                   />
                   <input
                     type="text"
@@ -279,13 +295,7 @@ const Parent = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <input
-                    type="text"
-                    placeholder="Veli Görsel"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                  />
+
                   <input
                     type="text"
                     placeholder="Veli Adresi"
@@ -307,12 +317,23 @@ const Parent = () => {
                     // value={address}
                     // onChange={(e) => setAddress(e.target.value)}
                   />
+                  <div className="flex flex-row gap-1 items-center">
+                    <label htmlFor="imageUpload" className="text-sm">
+                      Görsel Yükle:
+                    </label>
+                    <input
+                      type="file"
+                      id="imageUpload"
+                      accept="image/*"
+                      onChange={handleParentImageChange}
+                    />
+                  </div>
                   <select
                     className="border rounded py-2 px-3 focus:outline-none"
                     value={selectedStudent}
                     onChange={(e) => setSelectedStudent(e.target.value)}
                   >
-                    <option value="">Bağlı Öğrenci Seçin</option>
+                    <option value="">Bağlı Rota Seçin</option>
                     {(students?.data ?? []).map((student) => (
                       <option key={student.id} value={student.id}>
                         {student.user.firstName} {student.user.lastName}
@@ -324,7 +345,7 @@ const Parent = () => {
                     value={selectedSchool}
                     onChange={(e) => setSelectedSchool(e.target.value)}
                   >
-                    <option value="">Bağlı Okul Seçin</option>
+                    <option value="">Bağlı Servis Seçin</option>
                     {(schools?.data ?? []).map((school) => (
                       <option key={school.id} value={school.id}>
                         {school.name}
@@ -347,7 +368,21 @@ const Parent = () => {
                   </div>
                 </form>
               </div>
-              <div className="w-1/2 flex flex-col"></div>
+              <div className="w-1/2 flex flex-col">
+                <h3 className="text-lg font-medium mb-4">Veliler</h3>
+                <div className="flex flex-col gap-2">
+                  {(parents?.data ?? []).map((parent, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-200 p-1 rounded flex justify-between items-center"
+                    >
+                      <span className="flex p-1">
+                        {parent?.user?.firstName}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -391,11 +426,14 @@ const Parent = () => {
                     onChange={(e) => setEmail(e.target.value)}
                   />
                   <input
-                    type="text"
-                    placeholder="Öğrenci Telefon Numarası"
                     className="border rounded py-2 px-3 focus:outline-none"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value={studentphoneNumber}
+                    onChange={handleStudentChange}
+                    placeholder="Öğrenci Telefon Numarası"
+                    maxLength={11}
                   />
                   <input
                     type="text"
@@ -404,13 +442,17 @@ const Parent = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
-                  <input
-                    type="text"
-                    placeholder="Öğrenci Görsel"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    value={image}
-                    onChange={(e) => setImage(e.target.value)}
-                  />
+                  <div className="flex flex-row gap-1 items-center">
+                    <label htmlFor="imageUpload" className="text-sm">
+                      Görsel Yükle:
+                    </label>
+                    <input
+                      type="file"
+                      id="imageUpload"
+                      accept="image/*"
+                      onChange={handleStudentImageChange}
+                    />
+                  </div>
                   <select
                     className="border rounded py-2 px-3 focus:outline-none"
                     value={selectedParent}
@@ -420,18 +462,6 @@ const Parent = () => {
                     {(parents?.data ?? []).map((parent) => (
                       <option key={parent.id} value={parent.id}>
                         {parent.user.firstName} {parent.user.lastName}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    value={selectedSchool}
-                    onChange={(e) => setSelectedSchool(e.target.value)}
-                  >
-                    <option value="">Bağlı Okul Seçin</option>
-                    {(schools?.data ?? []).map((school) => (
-                      <option key={school.id} value={school.id}>
-                        {school.name}
                       </option>
                     ))}
                   </select>

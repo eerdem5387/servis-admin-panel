@@ -8,8 +8,62 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import "../styles/Home.module.css";
 import Map from "@/components/Map";
 
+const daysOfWeek = [
+  "Pazartesi",
+  "Salı",
+  "Çarşamba",
+  "Perşembe",
+  "Cuma",
+  "Cumartesi",
+  "Pazar",
+];
+
 const Routes = () => {
   const auth = useAuth();
+
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const handleStartTimeChange = (event) => {
+    setStartTime(event.target.value);
+  };
+
+  const handleEndTimeChange = (event) => {
+    setEndTime(event.target.value);
+  };
+
+  const [selectedDays, setSelectedDays] = useState([]);
+
+  const handleDayChange = (event) => {
+    const { value, checked } = event.target;
+    if (checked) {
+      setSelectedDays([...selectedDays, value]);
+    } else {
+      setSelectedDays(selectedDays.filter((day) => day !== value));
+    }
+  };
+
+  const [driverphoneNumber, setDriverPhoneNumber] = useState("");
+
+  const handleDriverChange = (e) => {
+    const value = e.target.value;
+    if (/^\d{0,11}$/.test(value)) {
+      setDriverPhoneNumber(value);
+    }
+  };
+
+  const [selectedDriverImage, setDriverSelectedImage] = useState(null);
+
+  const handleDriverImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setDriverSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const [selectedItem, setSelectedItem] = useState(0);
   const [isRoutesSubmenuOpen, setIsRoutesSubmenuOpen] = useState(false);
@@ -23,7 +77,7 @@ const Routes = () => {
     setIsDriversSubmenuOpen(index === 2 ? !isDriversSubmenuOpen : false);
   };
 
-  const [schools, setSchools] = useState({ data: [] });
+  const [routes, setRoutes] = useState({ data: [] });
   const [newRouteName, setNewRouteName] = useState("");
   const [newVehicleName, setNewVehicleName] = useState("");
   const [newDriverName, setNewDriverName] = useState("");
@@ -35,7 +89,7 @@ const Routes = () => {
     httpClient
       .get("/route")
       .then((res) => {
-        setSchools(res.data);
+        setRoutes(res.data);
       })
       .catch((err) => {
         if (err.response.status === 401) {
@@ -56,7 +110,7 @@ const Routes = () => {
       .post("/route", routeData)
       .then((res) => {
         console.log("Rota başarıyla oluşturuldu:", res.data);
-        setSchools((prevRoutes) => ({
+        setRoutes((prevRoutes) => ({
           data: [...prevRoutes.data, res.data],
         }));
       })
@@ -70,8 +124,8 @@ const Routes = () => {
 
   const handleCreateRoute = (e) => {
     e.preventDefault();
-    const schoolData = { name: newRouteName };
-    createRoute(schoolData);
+    const routeData = { name: newRouteName };
+    createRoute(routeData);
     setNewRouteName("");
     setShowAddRouteModal(false);
   };
@@ -112,48 +166,34 @@ const Routes = () => {
                   onClick={() => handleClick(index)}
                 >
                   <span className="flex justify-between items-center">
-                    {item}
-                    <i className="fas fa-plus ml-2"></i>
+                    {item === "Rotalar" && (
+                      <div className="flex flex-row items-center justify-between w-full">
+                        <span className="flex">Rotalar</span>
+                        <i
+                          onClick={() => setShowAddRouteModal(true)}
+                          className="fas fa-plus ml-2"
+                        ></i>
+                      </div>
+                    )}
+                    {item === "Araçlar" && (
+                      <div className="flex flex-row items-center justify-between w-full">
+                        <span className="flex">Araçlar</span>
+                        <i
+                          onClick={() => setShowAddVehicleModal(true)}
+                          className="fas fa-plus ml-2"
+                        ></i>
+                      </div>
+                    )}
+                    {item === "Sürücüler" && (
+                      <div className="flex flex-row items-center justify-between w-full">
+                        <span className="flex">Sürücüler</span>
+                        <i
+                          onClick={() => setShowAddDriverModal(true)}
+                          className="fas fa-plus ml-2"
+                        ></i>
+                      </div>
+                    )}
                   </span>
-                  {index === 0 && (
-                    <ul
-                      className={`transition-height ${
-                        isRoutesSubmenuOpen ? "open" : ""
-                      } mt-2 space-y-2 pl-4`}
-                    >
-                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button onClick={() => setShowAddRouteModal(true)}>
-                          Yeni Rota Ekle
-                        </button>
-                      </li>
-                    </ul>
-                  )}
-                  {index === 1 && (
-                    <ul
-                      className={`transition-height ${
-                        isVehiclesSubmenuOpen ? "open" : ""
-                      } mt-2 space-y-2 pl-4`}
-                    >
-                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button onClick={() => setShowAddVehicleModal(true)}>
-                          Yeni Araç Ekle
-                        </button>
-                      </li>
-                    </ul>
-                  )}
-                  {index === 2 && (
-                    <ul
-                      className={`transition-height ${
-                        isDriversSubmenuOpen ? "open" : ""
-                      } mt-2 space-y-2 pl-4`}
-                    >
-                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button onClick={() => setShowAddDriverModal(true)}>
-                          Yeni Sürücü Ekle
-                        </button>
-                      </li>
-                    </ul>
-                  )}
                 </li>
               ))}
             </ul>
@@ -190,19 +230,52 @@ const Routes = () => {
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
                   />
-                  <input
-                    type="text"
-                    placeholder="Rotanın Kullanılacağı Saat Aralığı"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    required
-                  />
-                  <input
-                    type="text"
-                    placeholder="Rotanın Kullanılacağı Günler"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    required
-                  />
-                  <select
+                  <div className="flex flex-row gap-2">
+                    <label htmlFor="startTime">Başlangıç Saati:</label>
+                    <input
+                      type="time"
+                      id="startTime"
+                      value={startTime}
+                      onChange={handleStartTimeChange}
+                    />
+
+                    <label htmlFor="endTime">Bitiş Saati:</label>
+                    <input
+                      type="time"
+                      id="endTime"
+                      value={endTime}
+                      onChange={handleEndTimeChange}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <h2>Rotanın Kullanılacağı Günler</h2>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex flex-row gap-1">
+                        {daysOfWeek.map((day) => (
+                          <div className="flex flex-row gap-1" key={day}>
+                            <label className="flex flex-row gap-1">
+                              <input
+                                type="checkbox"
+                                value={day}
+                                checked={selectedDays.includes(day)}
+                                onChange={handleDayChange}
+                              />
+                              {day}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <h3>Seçili Günler</h3>
+                        <ul className="flex flex-row gap-1">
+                          {selectedDays.map((day) => (
+                            <li key={day}>{day}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  {/* <select
                     className="border rounded py-2 px-3 focus:outline-none"
                     // value={selectedStudent}
                     // onChange={(e) => setSelectedStudent(e.target.value)}
@@ -212,7 +285,7 @@ const Routes = () => {
                       <option key={student.id} value={student.id}>
                         {student.user.firstName} {student.user.lastName}
                       </option>
-                    ))} */}
+                    ))} 
                   </select>
                   <select
                     className="border rounded py-2 px-3 focus:outline-none"
@@ -224,8 +297,8 @@ const Routes = () => {
                       <option key={student.id} value={student.id}>
                         {student.user.firstName} {student.user.lastName}
                       </option>
-                    ))} */}
-                  </select>
+                    ))} 
+                  </select> */}
                   <div className="flex justify-end">
                     <button
                       type="submit"
@@ -353,16 +426,22 @@ const Routes = () => {
                     required
                   />
                   <input
-                    type="text"
+                    type="email"
+                    id="email"
+                    name="email"
                     placeholder="Sürücü Mail Adresi"
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
                   />
                   <input
-                    type="text"
-                    placeholder="Sürücü Telefon Numarası"
                     className="border rounded py-2 px-3 focus:outline-none"
-                    required
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value={driverphoneNumber}
+                    onChange={handleDriverChange}
+                    placeholder="Telefon Numarası"
+                    maxLength={11}
                   />
                   <input
                     type="text"
@@ -370,12 +449,17 @@ const Routes = () => {
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
                   />
-                  <input
-                    type="text"
-                    placeholder="Sürücü Görsel"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    required
-                  />
+                  <div className="flex flex-row gap-1 items-center">
+                    <label htmlFor="imageUpload" className="text-sm">
+                      Görsel Yükle:
+                    </label>
+                    <input
+                      type="file"
+                      id="imageUpload"
+                      accept="image/*"
+                      onChange={handleDriverImageChange}
+                    />
+                  </div>
                   <select
                     className="border rounded py-2 px-3 focus:outline-none"
                     // value={selectedStudent}

@@ -5,9 +5,26 @@ import UsersList from "./UsersList";
 import SchoolsList from "./SchoolsList";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "../styles/Home.module.css";
+import PhoneInput from "react-phone-number-input/input";
 
 const Schools = () => {
   const auth = useAuth();
+
+  const [schoolphoneNumber, setSchoolPhoneNumber] = useState("");
+  const [userphoneNumber, setUserPhoneNumber] = useState("");
+
+  const handleSchoolChange = (e) => {
+    const value = e.target.value;
+    if (/^\d{0,11}$/.test(value)) {
+      setSchoolPhoneNumber(value);
+    }
+  };
+  const handleUserChange = (e) => {
+    const value = e.target.value;
+    if (/^\d{0,11}$/.test(value)) {
+      setUserPhoneNumber(value);
+    }
+  };
 
   const [selectedItem, setSelectedItem] = useState(0);
   const [isSchoolsSubmenuOpen, setIsSchoolsSubmenuOpen] = useState(false);
@@ -29,8 +46,10 @@ const Schools = () => {
 
   const [schools, setSchools] = useState({ data: [] });
   const [newSchoolName, setNewSchoolName] = useState("");
+  const [newUserName, setNewUserName] = useState("");
   const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [users, setUsers] = useState({ data: [] });
 
   const fetchSchools = () => {
     httpClient
@@ -77,6 +96,31 @@ const Schools = () => {
     setShowAddSchoolModal(false);
   };
 
+  const createUser = (userData) => {
+    httpClient
+      .post("/admin", userData)
+      .then((res) => {
+        console.log("Kullanıcı başarıyla oluşturuldu:", res.data);
+        setUsers((prevUsers) => ({
+          data: [...prevUsers.data, res.data],
+        }));
+      })
+      .catch((err) => {
+        console.error("Kullanıcı oluşturulurken bir hata oluştu:", err);
+        if (err.response && err.response.status === 401) {
+          auth.refreshToken();
+        }
+      });
+  };
+
+  const handleCreateUser = (e) => {
+    e.preventDefault();
+    const userData = { name: newUserName };
+    createUser(userData);
+    setNewUserName("");
+    setShowAddUserModal(false);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <header className="bg-white shadow w-full flex items-center p-6">
@@ -85,7 +129,7 @@ const Schools = () => {
         </h1>
       </header>
       <div className="flex w-full">
-        <div className="flex flex-col w-1/6 bg-[#0758C5] p-4">
+        <div className="flex flex-col w-1/6 bg-[#0758C5] p-4 h-screen">
           <nav>
             <ul className="space-y-4">
               {["Okullar", "Kullanıcılar"].map((item, index) => (
@@ -97,35 +141,25 @@ const Schools = () => {
                   onClick={() => handleClick(index)}
                 >
                   <span className="flex justify-between items-center">
-                    {item}
-                    <i className="fas fa-plus ml-2"></i>
+                    {item === "Okullar" && (
+                      <div className="flex flex-row items-center justify-between w-full">
+                        <span className="flex">Okullar</span>
+                        <i
+                          onClick={() => setShowAddSchoolModal(true)}
+                          className="fas fa-plus ml-2 flex"
+                        ></i>
+                      </div>
+                    )}
+                    {item === "Kullanıcılar" && (
+                      <div className="flex flex-row items-center justify-between w-full">
+                        <span className="flex">Kullanıcılar</span>
+                        <i
+                          onClick={() => setShowAddUserModal(true)}
+                          className="fas fa-plus ml-2 flex"
+                        ></i>
+                      </div>
+                    )}
                   </span>
-                  {item === "Okullar" && (
-                    <ul
-                      className={`transition-height ${
-                        isSchoolsSubmenuOpen ? "open" : ""
-                      } mt-2 space-y-2 pl-4`}
-                    >
-                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button onClick={() => setShowAddSchoolModal(true)}>
-                          Yeni Okul Ekle
-                        </button>
-                      </li>
-                    </ul>
-                  )}
-                  {item === "Kullanıcılar" && (
-                    <ul
-                      className={`transition-height ${
-                        isUsersSubmenuOpen ? "open" : ""
-                      } mt-2 space-y-2 pl-4`}
-                    >
-                      <li className="text-white bg-[#0575d1] p-2 cursor-pointer rounded-md">
-                        <button onClick={() => setShowAddUserModal(true)}>
-                          Yeni Kullanıcı Ekle
-                        </button>
-                      </li>
-                    </ul>
-                  )}
                 </li>
               ))}
             </ul>
@@ -146,7 +180,7 @@ const Schools = () => {
             >
               <i className="fas fa-times"></i>
             </button>
-            <div className="w-full flex flex-row">
+            <div className="w-full flex flex-row gap-5">
               <div className="w-1/2 flex flex-col">
                 <h3 className="text-lg font-medium mb-4">Yeni Okul Ekle</h3>
                 <form
@@ -174,13 +208,19 @@ const Schools = () => {
                     required
                   />
                   <input
-                    type="text"
-                    placeholder="Telefon Numarası"
                     className="border rounded py-2 px-3 focus:outline-none"
-                    required
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value={schoolphoneNumber}
+                    onChange={handleSchoolChange}
+                    placeholder="Telefon Numarası"
+                    maxLength={11}
                   />
                   <input
-                    type="text"
+                    type="email"
+                    id="email"
+                    name="email"
                     placeholder="Mail Adresi"
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
@@ -201,7 +241,19 @@ const Schools = () => {
                   </div>
                 </form>
               </div>
-              <div className="w-1/2 flex flex-col"></div>
+              <div className="w-1/2 flex flex-col gap-2">
+                <h3 className="text-lg font-medium mb-4">Okullar</h3>
+                <div className="flex flex-col gap-2">
+                  {(schools?.data ?? []).map((school, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-200 p-1 rounded flex justify-between items-center"
+                    >
+                      <span className="flex p-1">{school.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -221,9 +273,14 @@ const Schools = () => {
                 <h3 className="text-lg font-medium mb-4">
                   Yeni Kullanıcı Ekle
                 </h3>
-                <form className="flex flex-col gap-4">
+                <form
+                  className="flex flex-col gap-4"
+                  onSubmit={handleCreateUser}
+                >
                   <input
                     type="text"
+                    value={newUserName}
+                    onChange={(e) => setNewUserName(e.target.value)}
                     placeholder="Kullanıcak Kişi İsim"
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
@@ -235,16 +292,22 @@ const Schools = () => {
                     required
                   />
                   <input
-                    type="text"
+                    type="email"
+                    id="email"
+                    name="email"
                     placeholder="Mail Adresi"
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
                   />
                   <input
-                    type="text"
-                    placeholder="Telefon"
                     className="border rounded py-2 px-3 focus:outline-none"
-                    required
+                    type="text"
+                    id="phone"
+                    name="phone"
+                    value={userphoneNumber}
+                    onChange={handleUserChange}
+                    placeholder="Telefon Numarası"
+                    maxLength={11}
                   />
                   <input
                     type="text"

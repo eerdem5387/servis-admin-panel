@@ -58,7 +58,7 @@ const VehiclesList = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <div className="flex w-full">
-        <div className="flex flex-col w-4/5 p-4">
+        <div className="flex flex-col w-full p-4">
           {/* <h2 className="text-2xl font-semibold my-4">Kullanıcı Rolleri</h2>
           <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
             {(auth.authData?.roles ?? []).map((role, index) => (
@@ -68,16 +68,21 @@ const VehiclesList = () => {
             ))}
           </div> */}
           <h2 className="text-2xl font-semibold my-4">Araçlar</h2>
-          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
+          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-2">
             {(vehicles?.data ?? []).map((vehicle, index) => (
               <div
                 key={index}
-                className="bg-gray-200 p-4 rounded flex justify-between items-center"
+                className="bg-gray-200 p-1 rounded flex justify-between items-center"
               >
-                <span>{vehicle.name}</span>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Düzenle
-                </button>
+                <span className="flex p-1">{vehicle.name}</span>
+                <div className="flex flex-row justify-end gap-7 px-2">
+                  <button className="bg-[#0758C5] hover:bg-blue-700 text-white font-bold py-1 my-1 px-4 rounded">
+                    Düzenle
+                  </button>
+                  <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 my-1 px-4 rounded">
+                    Sil
+                  </button>
+                </div>
               </div>
             ))}
           </div>

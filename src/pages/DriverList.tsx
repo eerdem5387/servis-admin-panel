@@ -6,6 +6,28 @@ import Map from "@/components/Map";
 const DriversList = () => {
   const auth = useAuth();
 
+  const [driverphoneNumber, setDriverPhoneNumber] = useState("");
+
+  const handleDriverChange = (e) => {
+    const value = e.target.value;
+    if (/^\d{0,11}$/.test(value)) {
+      setDriverPhoneNumber(value);
+    }
+  };
+
+  const [selectedDriverImage, setDriverSelectedImage] = useState(null);
+
+  const handleDriverImageChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setDriverSelectedImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const [drivers, setDrivers] = useState({ data: [] });
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [showEditDriverModal, setShowEditDriverModal] = useState(false);
@@ -58,7 +80,7 @@ const DriversList = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <div className="flex w-full">
-        <div className="flex flex-col w-4/5 p-4">
+        <div className="flex flex-col w-full p-4">
           {/* <h2 className="text-2xl font-semibold my-4">Kullanıcı Rolleri</h2>
           <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
             {(auth.authData?.roles ?? []).map((role, index) => (
@@ -68,16 +90,21 @@ const DriversList = () => {
             ))}
           </div> */}
           <h2 className="text-2xl font-semibold my-4">Sürücüler</h2>
-          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
+          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-2">
             {(drivers?.data ?? []).map((driver, index) => (
               <div
                 key={index}
-                className="bg-gray-200 p-4 rounded flex justify-between items-center"
+                className="bg-gray-200 p-1 rounded flex justify-between items-center"
               >
-                <span>{driver.name}</span>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Düzenle
-                </button>
+                <span className="flex p-1">{drivers?.user?.firtName}</span>
+                <div className="flex flex-row justify-end gap-7 px-2">
+                  <button className="bg-[#0758C5] hover:bg-blue-700 text-white font-bold py-1 my-1 px-4 rounded">
+                    Düzenle
+                  </button>
+                  <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 my-1 px-4 rounded">
+                    Sil
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -102,10 +129,14 @@ const DriversList = () => {
                 required
               />
               <input
-                type="text"
-                placeholder="Sürücü Telefon Numarası"
                 className="border rounded py-2 px-3 focus:outline-none"
-                required
+                type="text"
+                id="phone"
+                name="phone"
+                value={driverphoneNumber}
+                onChange={handleDriverChange}
+                placeholder="Telefon Numarası"
+                maxLength={11}
               />
               <input
                 type="text"
@@ -113,12 +144,17 @@ const DriversList = () => {
                 className="border rounded py-2 px-3 focus:outline-none"
                 required
               />
-              <input
-                type="text"
-                placeholder="Sürücü Görsel"
-                className="border rounded py-2 px-3 focus:outline-none"
-                required
-              />
+              <div className="flex flex-row gap-1 items-center">
+                <label htmlFor="imageUpload" className="text-sm">
+                  Görsel Yükle:
+                </label>
+                <input
+                  type="file"
+                  id="imageUpload"
+                  accept="image/*"
+                  onChange={handleDriverImageChange}
+                />
+              </div>
               <select
                 className="border rounded py-2 px-3 focus:outline-none"
                 // value={selectedStudent}

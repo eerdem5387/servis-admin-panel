@@ -3,8 +3,40 @@ import httpClient from "@/httpClient";
 import React, { useEffect, useState } from "react";
 import Map from "@/components/Map";
 
+const daysOfWeek = [
+  "Pazartesi",
+  "Salı",
+  "Çarşamba",
+  "Perşembe",
+  "Cuma",
+  "Cumartesi",
+  "Pazar",
+];
+
 const RoutesList = () => {
   const auth = useAuth();
+
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const handleStartTimeChange = (event) => {
+    setStartTime(event.target.value);
+  };
+
+  const handleEndTimeChange = (event) => {
+    setEndTime(event.target.value);
+  };
+
+  const [selectedDays, setSelectedDays] = useState([]);
+
+  const handleDayChange = (event) => {
+    const { value, checked } = event.target;
+    if (checked) {
+      setSelectedDays([...selectedDays, value]);
+    } else {
+      setSelectedDays(selectedDays.filter((day) => day !== value));
+    }
+  };
 
   const [routes, setRoutes] = useState({ data: [] });
   const [selectedRoute, setSelectedRoute] = useState(null);
@@ -58,7 +90,7 @@ const RoutesList = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100 w-full">
       <div className="flex w-full">
-        <div className="flex flex-col w-4/5 p-4">
+        <div className="flex flex-col w-full p-4">
           {/* <h2 className="text-2xl font-semibold my-4">Kullanıcı Rolleri</h2>
           <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
             {(auth.authData?.roles ?? []).map((role, index) => (
@@ -68,16 +100,21 @@ const RoutesList = () => {
             ))}
           </div> */}
           <h2 className="text-2xl font-semibold my-4">Rotalar</h2>
-          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-4">
+          <div className="w-full flex flex-col gap-4 min-h-10 bg-white shadow rounded p-2">
             {(routes?.data ?? []).map((route, index) => (
               <div
                 key={index}
-                className="bg-gray-200 p-4 rounded flex justify-between items-center"
+                className="bg-gray-200 p-1 rounded flex justify-between items-center"
               >
-                <span>{route.name}</span>
-                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                  Düzenle
-                </button>
+                <span className="flex p-1">{route.name}</span>
+                <div className="flex flex-row justify-end gap-7 px-2">
+                  <button className="bg-[#0758C5] hover:bg-blue-700 text-white font-bold py-1 my-1 px-4 rounded">
+                    Düzenle
+                  </button>
+                  <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 my-1 px-4 rounded">
+                    Sil
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -95,18 +132,51 @@ const RoutesList = () => {
                 className="border rounded py-2 px-3 focus:outline-none"
                 required
               />
-              <input
-                type="text"
-                placeholder="Rotanın Kullanılacağı Saat Aralığı"
-                className="border rounded py-2 px-3 focus:outline-none"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Rotanın Kullanılacağı Günler"
-                className="border rounded py-2 px-3 focus:outline-none"
-                required
-              />
+              <div className="flex flex-row gap-2">
+                <label htmlFor="startTime">Başlangıç Saati:</label>
+                <input
+                  type="time"
+                  id="startTime"
+                  value={startTime}
+                  onChange={handleStartTimeChange}
+                />
+
+                <label htmlFor="endTime">Bitiş Saati:</label>
+                <input
+                  type="time"
+                  id="endTime"
+                  value={endTime}
+                  onChange={handleEndTimeChange}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <h2>Rotanın Kullanılacağı Günler</h2>
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-row gap-1">
+                    {daysOfWeek.map((day) => (
+                      <div className="flex flex-row gap-1" key={day}>
+                        <label className="flex flex-row gap-1">
+                          <input
+                            type="checkbox"
+                            value={day}
+                            checked={selectedDays.includes(day)}
+                            onChange={handleDayChange}
+                          />
+                          {day}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                  <div>
+                    <h3>Seçili Günler</h3>
+                    <ul className="flex flex-row gap-1">
+                      {selectedDays.map((day) => (
+                        <li key={day}>{day}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
               <select
                 className="border rounded py-2 px-3 focus:outline-none"
                 // value={selectedStudent}
