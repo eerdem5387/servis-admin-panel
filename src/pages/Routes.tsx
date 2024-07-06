@@ -78,12 +78,34 @@ const Routes = () => {
   };
 
   const [routes, setRoutes] = useState({ data: [] });
+  const [schools, setSchools] = useState({ data: [] });
   const [newRouteName, setNewRouteName] = useState("");
   const [newVehicleName, setNewVehicleName] = useState("");
   const [newDriverName, setNewDriverName] = useState("");
   const [showAddRouteModal, setShowAddRouteModal] = useState(false);
   const [showAddVehicleModal, setShowAddVehicleModal] = useState(false);
   const [showAddDriverModal, setShowAddDriverModal] = useState(false);
+  const [selectedSchool, setSelectedSchool] = useState("");
+
+  const fetchSchools = () => {
+    httpClient
+      .get("/school")
+      .then((res) => {
+        setSchools(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status === 401) {
+          auth.refreshToken();
+          console.log(err);
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (auth.authData.isAuth) {
+      fetchSchools();
+    }
+  }, [auth]);
 
   const fetchRoutes = () => {
     httpClient
@@ -105,29 +127,28 @@ const Routes = () => {
     }
   }, [auth]);
 
-  const createRoute = (routeData) => {
+  const createRoute = () => {
+    const routeData = {
+      // name: routeName,
+    };
+
     httpClient
-      .post("/route", routeData)
+      .post("/route", routeData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
       .then((res) => {
-        console.log("Rota başarıyla oluşturuldu:", res.data);
-        setRoutes((prevRoutes) => ({
-          data: [...prevRoutes.data, res.data],
-        }));
+        setShowAddRouteModal(false);
       })
       .catch((err) => {
-        console.error("Rota oluşturulurken bir hata oluştu:", err);
-        if (err.response && err.response.status === 401) {
-          auth.refreshToken();
-        }
+        console.log(err);
       });
   };
 
-  const handleCreateRoute = (e) => {
+  const handleSubmitRoute = (e) => {
     e.preventDefault();
-    const routeData = { name: newRouteName };
-    createRoute(routeData);
-    setNewRouteName("");
-    setShowAddRouteModal(false);
+    createRoute();
   };
 
   const handleCreateVehicle = (e) => {
@@ -219,7 +240,7 @@ const Routes = () => {
               <div className="w-1/2 flex flex-col">
                 <h3 className="text-lg font-medium mb-4">Yeni Rota Ekle</h3>
                 <form
-                  onSubmit={handleCreateRoute}
+                  onSubmit={handleSubmitRoute}
                   className="flex flex-col gap-4"
                 >
                   <input
@@ -275,30 +296,18 @@ const Routes = () => {
                       </div>
                     </div>
                   </div>
-                  {/* <select
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    // value={selectedStudent}
-                    // onChange={(e) => setSelectedStudent(e.target.value)}
-                  >
-                    <option value="">Bağlı Araç Seçin</option>
-                    {/* {(students?.data ?? []).map((student) => (
-                      <option key={student.id} value={student.id}>
-                        {student.user.firstName} {student.user.lastName}
-                      </option>
-                    ))} 
-                  </select>
                   <select
                     className="border rounded py-2 px-3 focus:outline-none"
-                    // value={selectedStudent}
-                    // onChange={(e) => setSelectedStudent(e.target.value)}
+                    value={selectedSchool}
+                    onChange={(e) => setSelectedSchool(e.target.value)}
                   >
                     <option value="">Bağlı Okul Seçin</option>
-                    {/* {(students?.data ?? []).map((student) => (
-                      <option key={student.id} value={student.id}>
-                        {student.user.firstName} {student.user.lastName}
+                    {(schools?.data ?? []).map((school) => (
+                      <option key={school.id} value={school.id}>
+                        {school.name}
                       </option>
-                    ))} 
-                  </select> */}
+                    ))}
+                  </select>
                   <div className="flex justify-end">
                     <button
                       type="submit"

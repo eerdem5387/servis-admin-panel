@@ -45,11 +45,17 @@ const Schools = () => {
   };
 
   const [schools, setSchools] = useState({ data: [] });
-  const [newSchoolName, setNewSchoolName] = useState("");
   const [newUserName, setNewUserName] = useState("");
   const [showAddSchoolModal, setShowAddSchoolModal] = useState(false);
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [users, setUsers] = useState({ data: [] });
+  const [schoolName, setSchoolName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [contact, setContact] = useState("");
+  const [image, setImage] = useState("");
+  const [address, setAddress] = useState("");
+  const [person, setPerson] = useState("");
 
   const fetchSchools = () => {
     httpClient
@@ -71,29 +77,33 @@ const Schools = () => {
     }
   }, [auth]);
 
-  const createSchool = (schoolData) => {
+  const createSchool = () => {
+    const schoolData = {
+      name: schoolName,
+      // email: email,
+      contact: contact,
+      // password: password,
+      // image: image,
+      address: address,
+    };
+
     httpClient
-      .post("/school", schoolData)
+      .post("/school", schoolData, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
       .then((res) => {
-        console.log("Okul başarıyla oluşturuldu:", res.data);
-        setSchools((prevSchools) => ({
-          data: [...prevSchools.data, res.data],
-        }));
+        setShowAddSchoolModal(false);
       })
       .catch((err) => {
-        console.error("Okul oluşturulurken bir hata oluştu:", err);
-        if (err.response && err.response.status === 401) {
-          auth.refreshToken();
-        }
+        console.log(err);
       });
   };
 
-  const handleCreateSchool = (e) => {
+  const handleSubmitSchool = (e) => {
     e.preventDefault();
-    const schoolData = { name: newSchoolName };
-    createSchool(schoolData);
-    setNewSchoolName("");
-    setShowAddSchoolModal(false);
+    createSchool();
   };
 
   const createUser = (userData) => {
@@ -184,25 +194,29 @@ const Schools = () => {
               <div className="w-1/2 flex flex-col">
                 <h3 className="text-lg font-medium mb-4">Yeni Okul Ekle</h3>
                 <form
-                  onSubmit={handleCreateSchool}
+                  onSubmit={handleSubmitSchool}
                   className="flex flex-col gap-4"
                 >
                   <input
                     type="text"
-                    value={newSchoolName}
-                    onChange={(e) => setNewSchoolName(e.target.value)}
+                    value={schoolName}
+                    onChange={(e) => setSchoolName(e.target.value)}
                     placeholder="Okul Adı"
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
                   />
                   <input
                     type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
                     placeholder="Adres"
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
                   />
                   <input
                     type="text"
+                    value={person}
+                    onChange={(e) => setPerson(e.target.value)}
                     placeholder="Yetkili Kişi"
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
@@ -212,8 +226,8 @@ const Schools = () => {
                     type="text"
                     id="phone"
                     name="phone"
-                    value={schoolphoneNumber}
-                    onChange={handleSchoolChange}
+                    value={contact}
+                    onChange={(e) => setContact(e.target.value)}
                     placeholder="Telefon Numarası"
                     maxLength={11}
                   />
@@ -221,7 +235,19 @@ const Schools = () => {
                     type="email"
                     id="email"
                     name="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="Mail Adresi"
+                    className="border rounded py-2 px-3 focus:outline-none"
+                    required
+                  />
+                  <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Şifre"
                     className="border rounded py-2 px-3 focus:outline-none"
                     required
                   />

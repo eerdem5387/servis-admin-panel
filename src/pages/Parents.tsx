@@ -5,6 +5,41 @@ import ParentsList from "./ParentsList";
 import StudentList from "./StudentList";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "../styles/Home.module.css";
+import { Input, InputNumber } from "antd";
+import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Cascader,
+  Checkbox,
+  ColorPicker,
+  DatePicker,
+  Form,
+  Radio,
+  Select,
+  Slider,
+  Switch,
+  TreeSelect,
+  Upload,
+} from "antd";
+
+const normFile = (e: any) => {
+  if (Array.isArray(e)) {
+    return e;
+  }
+  return e?.fileList;
+};
+
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 20 },
+  },
+};
 
 const Parent = () => {
   const [selectedItem, setSelectedItem] = useState(0);
@@ -33,22 +68,6 @@ const Parent = () => {
         setStudenttSelectedImage(reader.result);
       };
       reader.readAsDataURL(file);
-    }
-  };
-
-  const [parentphoneNumber, setParentPhoneNumber] = useState("");
-  const [studentphoneNumber, setStudentPhoneNumber] = useState("");
-
-  const handleParentChange = (e) => {
-    const value = e.target.value;
-    if (/^\d{0,11}$/.test(value)) {
-      setParentPhoneNumber(value);
-    }
-  };
-  const handleStudentChange = (e) => {
-    const value = e.target.value;
-    if (/^\d{0,11}$/.test(value)) {
-      setStudentPhoneNumber(value);
     }
   };
 
@@ -84,6 +103,27 @@ const Parent = () => {
   const [selectedStudent, setSelectedStudent] = useState("");
   const [selectedSchool, setSelectedSchool] = useState("");
   const [newParentName, setNewParentName] = useState("");
+
+  const fetchSchools = () => {
+    httpClient
+      .get("/school")
+      .then((res) => {
+        console.log(res.data);
+        setSchools(res.data);
+      })
+      .catch((err) => {
+        if (err.response.status === 401) {
+          auth.refreshToken();
+          console.log(err);
+        }
+      });
+  };
+
+  useEffect(() => {
+    if (auth.authData.isAuth) {
+      fetchSchools();
+    }
+  }, [auth]);
 
   const fetchParents = () => {
     httpClient
@@ -283,8 +323,8 @@ const Parent = () => {
                     type="text"
                     id="phone"
                     name="phone"
-                    value={parentphoneNumber}
-                    onChange={handleParentChange}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     placeholder="Veli Telefon Numarası"
                     maxLength={11}
                   />
@@ -400,73 +440,141 @@ const Parent = () => {
             <div className="w-full flex flex-row">
               <div className="w-1/2 flex flex-col">
                 <h3 className="text-lg font-medium mb-4">Yeni Öğrenci Ekle</h3>
-                <form
-                  onSubmit={handleSubmitStudent}
-                  className="flex flex-col gap-2"
+                <Form
+                  {...formItemLayout}
+                  variant="filled"
+                  className="flex flex-col gap-2 w-full"
                 >
-                  <input
-                    type="text"
-                    placeholder="Öğrenci Adı"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Öğrenci Soyadı"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Öğrenci Mail Adresi"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                  <input
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    type="text"
-                    id="phone"
-                    name="phone"
-                    value={studentphoneNumber}
-                    onChange={handleStudentChange}
-                    placeholder="Öğrenci Telefon Numarası"
-                    maxLength={11}
-                  />
-                  <input
-                    type="text"
-                    placeholder="Öğrenci Kullanıcı Şifresi"
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                  <div className="flex flex-row gap-1 items-center">
-                    <label htmlFor="imageUpload" className="text-sm">
-                      Görsel Yükle:
-                    </label>
-                    <input
-                      type="file"
-                      id="imageUpload"
-                      accept="image/*"
-                      onChange={handleStudentImageChange}
-                    />
-                  </div>
-                  <select
-                    className="border rounded py-2 px-3 focus:outline-none"
-                    value={selectedParent}
-                    onChange={(e) => setSelectedParent(e.target.value)}
+                  <Form.Item
+                    rules={[{ required: true, message: "Öğrenci Adını Yazın" }]}
+                    className="w-full flex flex-col"
+                    label="Öğrenci Adı"
+                    name="name"
                   >
-                    <option value="">Bağlı Veli Seçin</option>
-                    {(parents?.data ?? []).map((parent) => (
-                      <option key={parent.id} value={parent.id}>
-                        {parent.user.firstName} {parent.user.lastName}
-                      </option>
-                    ))}
-                  </select>
+                    <Input
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    rules={[
+                      { required: true, message: "Öğrenci Soy Adını Yazın" },
+                    ]}
+                    className="w-full flex flex-col"
+                    label="Öğrenci Soy Adı"
+                    name="lastname"
+                  >
+                    <Input
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    rules={[
+                      { required: true, message: "Öğrenci Mail Adresi Yazın" },
+                    ]}
+                    className="w-full flex flex-col "
+                    label="Öğrenci Mail Adresi"
+                    name="email"
+                  >
+                    <Input
+                      className=" items-center"
+                      type="text"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    rules={[
+                      {
+                        required: true,
+                        message: "Öğrenci Telefon Numarası Yazın",
+                      },
+                    ]}
+                    className="w-full flex flex-col "
+                    label="Öğrenci Telefon Numarası"
+                    name="number"
+                  >
+                    <InputNumber
+                      className="w-full"
+                      type="number"
+                      id="quantity"
+                      name="quantity"
+                      maxLength={11}
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    rules={[
+                      {
+                        required: true,
+                        message: "Öğrenci Parola Yazın",
+                      },
+                    ]}
+                    className="w-full flex flex-col "
+                    label="Öğrenci Parola"
+                    name="password"
+                  >
+                    <Input.Password
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      iconRender={(visible) =>
+                        visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                      }
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Görsel Seçin"
+                    valuePropName="fileList"
+                    getValueFromEvent={normFile}
+                  >
+                    <Upload
+                      onChange={handleStudentImageChange}
+                      action="/upload.do"
+                      listType="picture-card"
+                    >
+                      <button
+                        style={{ border: 0, background: "none" }}
+                        type="button"
+                      >
+                        <PlusOutlined />
+                        <div style={{ marginTop: 8 }}>Görsel Yükle</div>
+                      </button>
+                    </Upload>
+                  </Form.Item>
+                  <Form.Item>
+                    <Select placeholder="Bağlı Okul Seçin">
+                      <Select.Option
+                        value={selectedSchool}
+                        onChange={(e) => setSelectedSchool(e.target.value)}
+                      >
+                        {(schools?.data ?? []).map((school) => (
+                          <option key={school.id} value={school.id}>
+                            {school.name}
+                          </option>
+                        ))}
+                      </Select.Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item>
+                    <Select placeholder="Bağlı Veli Seçin">
+                      <Select.Option
+                        value={selectedParent}
+                        onChange={(e) => setSelectedParent(e.target.value)}
+                      >
+                        {(parents?.data ?? []).map((parent) => (
+                          <option key={parent.id} value={parent.id}>
+                            {parent.user.firstName} {parent.user.lastName}
+                          </option>
+                        ))}
+                      </Select.Option>
+                    </Select>
+                  </Form.Item>
                   <div className="flex justify-end">
                     <button
+                      onSubmit={handleSubmitStudent}
                       type="submit"
                       className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:bg-blue-700"
                     >
@@ -479,7 +587,7 @@ const Parent = () => {
                       İptal
                     </button>
                   </div>
-                </form>
+                </Form>
               </div>
               <div className="w-1/2 flex flex-col"></div>
             </div>
